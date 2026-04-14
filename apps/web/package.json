@@ -3,22 +3,39 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "build": "echo \"No build yet\"",
+    "build": "tsc --project tsconfig.json && vite build",
     "dev": "vite",
+    "preview": "vite preview",
     "lint": "eslint src/",
-    "test": "echo \"No tests yet\""
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@flare/shared": "workspace:*",
-    "@flare/ui": "workspace:*"
+    "@flare/ui": "workspace:*",
+    "@mantine/core": "^8.0.0",
+    "@mantine/hooks": "^8.0.0",
+    "@mantine/notifications": "^8.0.0",
+    "tweetnacl": "^1.0.3",
+    "tweetnacl-util": "^0.15.1",
+    "zod": "^3.24.0"
   },
   "devDependencies": {
-    "@flare/tsconfig": "workspace:*",
     "@flare/eslint-config": "workspace:*",
-    "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0",
+    "@flare/tsconfig": "workspace:*",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^4.0.0",
+    "fake-indexeddb": "^6.2.5",
+    "happy-dom": "^20.9.0",
+    "jsdom": "^29.0.2",
     "typescript": "^5.0.0",
-    "vite": "^6.0.0"
+    "vite": "^6.0.0",
+    "vite-plugin-pwa": "^1.2.0",
+    "vitest": "^4.1.4"
   }
 }

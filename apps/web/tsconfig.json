@@ -3,7 +3,17 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
-    "noEmit": true
+    "noEmit": true,
+    "types": ["vite/client", "vite-plugin-pwa/client", "vitest/globals", "@testing-library/jest-dom"],
+    "baseUrl": "./src",
+    "paths": {
+      "@app/*": ["app/*"],
+      "@pages/*": ["pages/*"],
+      "@widgets/*": ["widgets/*"],
+      "@features/*": ["features/*"],
+      "@entities/*": ["entities/*"],
+      "@shared/*": ["shared/*"]
+    }
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]

@@ -1,12 +1,12 @@
 import { type CanActivate, type ExecutionContext, Injectable, Logger } from '@nestjs/common';
-import type { ConfigService } from '@nestjs/config';
-import type { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import { WsException } from '@nestjs/websockets';
 
-import type { Socket } from 'socket.io';
+import { type Socket } from 'socket.io';
 
-import type { AppEnv } from '../../config/env.types.js';
-import type { JwtAccessPayload } from '../types/authenticated.types.js';
+import { type AppEnv } from '../../config/env.types.js';
+import { type JwtAccessPayload } from '../types/authenticated.types.js';
 
 /**
  * WebSocket-аутентификация через JWT из `handshake.auth.token`.

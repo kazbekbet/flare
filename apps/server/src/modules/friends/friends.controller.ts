@@ -3,9 +3,9 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard.js';
-import type { AuthenticatedUser } from '../../common/types/authenticated.types.js';
-import type { CreateFriendRequestDto } from './dto/friends.dto.js';
-import type { AcceptFriendResult, FriendshipView, FriendsService } from './friends.service.js';
+import { type AuthenticatedUser } from '../../common/types/authenticated.types.js';
+import { CreateFriendRequestDto } from './dto/friends.dto.js';
+import { type AcceptFriendResult, type FriendshipView, FriendsService } from './friends.service.js';
 
 /**
  * REST-эндпоинты для управления запросами дружбы.

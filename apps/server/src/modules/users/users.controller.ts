@@ -3,9 +3,9 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard.js';
-import type { AuthenticatedUser } from '../../common/types/authenticated.types.js';
-import type { UpdateUserDto } from './dto/users.dto.js';
-import type { PrivateUserProfile, UsersService } from './users.service.js';
+import { type AuthenticatedUser } from '../../common/types/authenticated.types.js';
+import { UpdateUserDto } from './dto/users.dto.js';
+import { type PrivateUserProfile, UsersService } from './users.service.js';
 
 /**
  * REST-эндпоинты для управления собственным профилем и чтения публичных ключей.

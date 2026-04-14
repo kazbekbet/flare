@@ -1,12 +1,12 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 
-import { isValidObjectId, type Model, Types } from 'mongoose';
+import { isValidObjectId, Model, Types } from 'mongoose';
 
 import { type CreateFriendRequestDto, FriendshipStatus } from '@flare/shared';
 
-import type { ConversationsService } from '../conversations/conversations.service.js';
-import { type ChatGateway, ServerEvents } from '../gateway/chat.gateway.js';
+import { ConversationsService } from '../conversations/conversations.service.js';
+import { ChatGateway, ServerEvents } from '../gateway/chat.gateway.js';
 import { Friendship, type FriendshipDocument } from '../mongoose/schemas/friendship.schema.js';
 import { User, type UserDocument } from '../mongoose/schemas/user.schema.js';
 

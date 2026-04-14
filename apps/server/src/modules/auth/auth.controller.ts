@@ -1,9 +1,9 @@
 import { Body, Controller, HttpCode, HttpStatus, Post, Req, Res, UnauthorizedException } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 
-import type { Request, Response } from 'express';
+import { type Request, type Response } from 'express';
 
-import type { AuthService, AuthTokens } from './auth.service.js';
+import { AuthService, type AuthTokens } from './auth.service.js';
 import { RegisterDto } from './dto/auth.dto.js';
 
 /** Имя httpOnly-cookie, в которой клиенту возвращается refresh-токен. */

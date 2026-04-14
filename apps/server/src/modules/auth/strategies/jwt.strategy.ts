@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import type { ConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
-import type { AuthenticatedUser, JwtAccessPayload } from '../../../common/types/authenticated.types.js';
-import type { AppEnv } from '../../../config/env.types.js';
+import { type AuthenticatedUser, type JwtAccessPayload } from '../../../common/types/authenticated.types.js';
+import { type AppEnv } from '../../../config/env.types.js';
 
 /**
  * Passport-стратегия проверки JWT access-токена.

@@ -1,9 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 
-import { isValidObjectId, type Model } from 'mongoose';
+import { isValidObjectId, Model } from 'mongoose';
 
-import type { UpdateUserDto } from '@flare/shared';
+import { type UpdateUserDto } from '@flare/shared';
 
 import { User, type UserDocument } from '../mongoose/schemas/user.schema.js';
 

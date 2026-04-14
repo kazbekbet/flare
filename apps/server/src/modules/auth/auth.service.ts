@@ -1,15 +1,15 @@
 import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
-import type { ConfigService } from '@nestjs/config';
-import type { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 
 import { randomUUID } from 'node:crypto';
-import type { Model } from 'mongoose';
+import { Model } from 'mongoose';
 
-import type { RegisterDto } from '@flare/shared';
+import { type RegisterDto } from '@flare/shared';
 
-import type { JwtAccessPayload, JwtRefreshPayload } from '../../common/types/authenticated.types.js';
-import type { AppEnv } from '../../config/env.types.js';
+import { type JwtAccessPayload, type JwtRefreshPayload } from '../../common/types/authenticated.types.js';
+import { type AppEnv } from '../../config/env.types.js';
 import { Session, type SessionDocument } from '../mongoose/schemas/session.schema.js';
 import { User, type UserDocument } from '../mongoose/schemas/user.schema.js';
 

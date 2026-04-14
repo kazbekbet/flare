@@ -1,6 +1,6 @@
-import type { CreateFriendRequestDto, FriendshipStatus } from '@flare/shared';
+import { baseApi, unwrapEnvelope } from '@shared/api';
 
-import { httpClient, unwrap } from '../../../shared/api/index.js';
+import type { CreateFriendRequestDto, FriendshipStatus } from '@flare/shared';
 
 /** Представление связи дружбы, возвращаемое сервером. */
 export interface FriendshipView {
@@ -19,44 +19,34 @@ export interface AcceptFriendResult {
 }
 
 /**
- * Отправить запрос на добавление в друзья.
- *
- * @param dto - Тело запроса с `addresseeId`.
- * @returns Созданная связь дружбы.
+ * Инжектированные эндпоинты `friends`.
+ * Теги:
+ *  - `Friendship` — провайдится `getFriends`, инвалидируется всеми мутациями.
  */
-export async function sendFriendRequest(dto: CreateFriendRequestDto): Promise<FriendshipView> {
-  const response = await httpClient.post<{ data: FriendshipView }>('/friends/request', dto);
-  return unwrap(response);
-}
+export const friendshipApi = baseApi.injectEndpoints({
+  endpoints: (build) => ({
+    getFriends: build.query<FriendshipView[], void>({
+      query: () => ({ url: '/friends' }),
+      transformResponse: unwrapEnvelope<FriendshipView[]>,
+      providesTags: ['Friendship'],
+    }),
+    sendFriendRequest: build.mutation<FriendshipView, CreateFriendRequestDto>({
+      query: (body) => ({ url: '/friends/request', method: 'POST', body }),
+      transformResponse: unwrapEnvelope<FriendshipView>,
+      invalidatesTags: ['Friendship'],
+    }),
+    acceptFriend: build.mutation<AcceptFriendResult, string>({
+      query: (friendshipId) => ({ url: `/friends/${friendshipId}/accept`, method: 'PATCH' }),
+      transformResponse: unwrapEnvelope<AcceptFriendResult>,
+      invalidatesTags: ['Friendship'],
+    }),
+    declineFriend: build.mutation<FriendshipView, string>({
+      query: (friendshipId) => ({ url: `/friends/${friendshipId}/decline`, method: 'PATCH' }),
+      transformResponse: unwrapEnvelope<FriendshipView>,
+      invalidatesTags: ['Friendship'],
+    }),
+  }),
+});
 
-/**
- * Принять запрос на добавление в друзья.
- *
- * @param friendshipId - ID записи дружбы.
- * @returns Обновлённая связь + id созданного DIRECT-диалога.
- */
-export async function acceptFriend(friendshipId: string): Promise<AcceptFriendResult> {
-  const response = await httpClient.patch<{ data: AcceptFriendResult }>(`/friends/${friendshipId}/accept`);
-  return unwrap(response);
-}
-
-/**
- * Отклонить запрос на добавление в друзья.
- *
- * @param friendshipId - ID записи дружбы.
- * @returns Обновлённая связь.
- */
-export async function declineFriend(friendshipId: string): Promise<FriendshipView> {
-  const response = await httpClient.patch<{ data: FriendshipView }>(`/friends/${friendshipId}/decline`);
-  return unwrap(response);
-}
-
-/**
- * Получить список активных связей дружбы текущего пользователя.
- *
- * @returns Массив связей.
- */
-export async function listFriends(): Promise<FriendshipView[]> {
-  const response = await httpClient.get<{ data: FriendshipView[] }>('/friends');
-  return unwrap(response);
-}
+export const { useAcceptFriendMutation, useDeclineFriendMutation, useGetFriendsQuery, useSendFriendRequestMutation } =
+  friendshipApi;

@@ -1,8 +1,9 @@
 export {
-  acceptFriend,
   type AcceptFriendResult,
-  declineFriend,
+  friendshipApi,
   type FriendshipView,
-  listFriends,
-  sendFriendRequest,
-} from './api/friendship.api.js';
+  useAcceptFriendMutation,
+  useDeclineFriendMutation,
+  useGetFriendsQuery,
+  useSendFriendRequestMutation,
+} from './api/friendship.api';

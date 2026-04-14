@@ -1,18 +1,20 @@
+import { RegisterForm } from '@features/auth-register';
 import { Center, Container, Paper } from '@mantine/core';
-
-import { RegisterForm } from '../../../features/auth-register/index.js';
-import { ROUTES } from '../../../shared/config/index.js';
+import { ROUTES } from '@shared/config';
 
 /**
- * Страница регистрации/входа.
- * Показывается неаутентифицированным пользователям.
+ * Пропсы `AuthPage`.
  *
- * @param props.onRegistered - Вызывается после успешной регистрации (обычно — навигация на `/chats`).
+ * @prop {() => void} [onRegistered] - Вызывается после успешной регистрации (обычно — навигация на `/chats`).
  */
 export interface AuthPageProps {
   onRegistered?: () => void;
 }
 
+/**
+ * Страница регистрации/входа.
+ * Показывается неаутентифицированным пользователям.
+ */
 export function AuthPage({ onRegistered }: AuthPageProps) {
   return (
     <Center mih="100vh" px="md">

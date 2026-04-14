@@ -1,8 +1,8 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
-import { AppProviders } from './app/providers/index.js';
-import { AppRouterProvider } from './app/router/index.js';
+import { AppProviders } from '@app/providers';
+import { AppRouterProvider } from '@app/router';
 
 import '@mantine/core/styles.css';
 import '@mantine/notifications/styles.css';

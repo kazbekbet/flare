@@ -1,14 +1,13 @@
+import { store } from '@app/store';
+import { AuthPage } from '@pages/auth-page';
+import { ChatsPage } from '@pages/chats-page';
+import { FriendsPage } from '@pages/friends-page';
+import { SettingsPage } from '@pages/settings-page';
+import { ROUTES } from '@shared/config';
 import { createRootRoute, createRoute, createRouter, Outlet, redirect, RouterProvider } from '@tanstack/react-router';
 
-import { AuthPage } from '../../pages/auth-page/index.js';
-import { ChatsPage } from '../../pages/chats-page/index.js';
-import { FriendsPage } from '../../pages/friends-page/index.js';
-import { SettingsPage } from '../../pages/settings-page/index.js';
-import { ROUTES } from '../../shared/config/index.js';
-import { store } from '../store/index.js';
-
 /**
- * Утилита для guard-ов — проверяет наличие access-токена в RTK-store.
+ * Guard — проверяет наличие access-токена в RTK-store.
  * Используется в `beforeLoad` защищённых роутов.
  */
 function requireAuthenticated(): void {

@@ -1,9 +1,10 @@
 import React from 'react';
 
+import { useAppDispatch } from '@app/store';
 import { Alert, Button, Stack, Text, Title } from '@mantine/core';
 import { Html5Qrcode, type Html5QrcodeCameraScanConfig } from 'html5-qrcode';
 
-import { processScannedQr, type ScanResult } from '../model/scan.thunk.js';
+import { processScannedQr, type ScanResult } from '../model/scan.thunk';
 
 /** DOM-id контейнера, в который html5-qrcode рендерит поток камеры. */
 const SCANNER_ELEMENT_ID = 'flare-qr-scanner';
@@ -28,6 +29,7 @@ export interface QrScannerProps {
  * При успешном чтении парсит payload, запрашивает публичный ключ, отправляет запрос дружбы.
  */
 export function QrScanner({ onScanned }: QrScannerProps) {
+  const dispatch = useAppDispatch();
   const [error, setError] = React.useState<string | null>(null);
   const [result, setResult] = React.useState<ScanResult | null>(null);
   const [isScanning, setIsScanning] = React.useState(false);
@@ -55,7 +57,7 @@ export function QrScanner({ onScanned }: QrScannerProps) {
         async (decodedText) => {
           await stop();
           try {
-            const scanResult = await processScannedQr(decodedText);
+            const scanResult = await processScannedQr(decodedText, dispatch);
             setResult(scanResult);
             onScanned?.(scanResult);
           } catch (e) {
@@ -70,7 +72,7 @@ export function QrScanner({ onScanned }: QrScannerProps) {
       setError(e instanceof Error ? e.message : 'Не удалось запустить камеру');
       setIsScanning(false);
     }
-  }, [onScanned, stop]);
+  }, [dispatch, onScanned, stop]);
 
   React.useEffect(() => {
     return () => {

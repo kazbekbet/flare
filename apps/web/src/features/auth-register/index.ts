@@ -1,3 +1,3 @@
-export { logoutRequest, registerRequest, type RegisterResponse } from './api/register.api.js';
-export { performRegister, type RegisterArgs, type SessionDispatcher } from './model/register.thunk.js';
-export { RegisterForm, type RegisterFormProps } from './ui/register-form.js';
+export { authApi, type RegisterResponse, useLogoutMutation, useRegisterMutation } from './api/register.api';
+export { performRegister, type RegisterArgs } from './model/register.thunk';
+export { RegisterForm, type RegisterFormProps } from './ui/register-form';

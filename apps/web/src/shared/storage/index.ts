@@ -4,4 +4,4 @@ export {
   hasStoredKey,
   loadPrivateKey,
   storePrivateKey,
-} from './keypair-vault.js';
+} from './keypair-vault';

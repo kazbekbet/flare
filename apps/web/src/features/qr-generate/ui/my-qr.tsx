@@ -1,16 +1,15 @@
+import { useAppSelector } from '@app/store';
+import { selectSession } from '@entities/session';
 import { Alert, Paper, Stack, Text, Title } from '@mantine/core';
+import { encodeQrPayload } from '@shared/lib';
 import { QRCodeSVG } from 'qrcode.react';
-import { useSelector } from 'react-redux';
-
-import { selectSession } from '../../../entities/session/index.js';
-import { encodeQrPayload } from '../../../shared/lib/index.js';
 
 /**
  * Экран «Мой QR». Показывает QR-код с payload `{v:1, uid, name}` —
  * другой пользователь сканирует его и добавляет нас в друзья.
  */
 export function MyQrCode() {
-  const session = useSelector(selectSession);
+  const session = useAppSelector(selectSession);
 
   if (!session.userId || !session.displayName) {
     return <Alert color="yellow">Сначала зарегистрируйтесь — у вас ещё нет профиля.</Alert>;

@@ -1,1 +1,1 @@
-export { AppRouterProvider, router } from './router.js';
+export { AppRouterProvider, router } from './router';

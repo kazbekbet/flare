@@ -1,18 +1,18 @@
 import React from 'react';
 
+import { useAppDispatch } from '@app/store';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Alert, Button, PasswordInput, Stack, TextInput, Title } from '@mantine/core';
 import { useForm } from 'react-hook-form';
-import { useDispatch } from 'react-redux';
 import { z } from 'zod';
 
 import { RegisterDtoSchema } from '@flare/shared';
 
-import { performRegister } from '../model/register.thunk.js';
+import { performRegister } from '../model/register.thunk';
 
 /**
- * Форма регистрации: displayName + PIN.
- * Схема валидации расширяет `RegisterDtoSchema` — добавляет `pin` (6–12 цифр) и confirm.
+ * Схема валидации формы регистрации.
+ * Расширяет `RegisterDtoSchema` — добавляет `pin` (6–12 цифр) и confirm.
  */
 const FormSchema = RegisterDtoSchema.pick({ displayName: true })
   .extend({
@@ -24,17 +24,20 @@ const FormSchema = RegisterDtoSchema.pick({ displayName: true })
 type FormValues = z.infer<typeof FormSchema>;
 
 /**
- * Экран регистрации нового пользователя.
- * Генерирует keypair, отправляет на сервер, шифрует приватный ключ PIN-ом.
+ * Пропсы `RegisterForm`.
  *
- * @param props.onSuccess - Коллбек после успешной регистрации (обычно — редирект).
+ * @prop {() => void} [onSuccess] - Коллбек после успешной регистрации (обычно — редирект).
  */
 export interface RegisterFormProps {
   onSuccess?: () => void;
 }
 
+/**
+ * Форма регистрации: displayName + PIN.
+ * Генерирует keypair, вызывает `register` мутацию, шифрует приватный ключ PIN-ом.
+ */
 export function RegisterForm({ onSuccess }: RegisterFormProps) {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const [error, setError] = React.useState<string | null>(null);
   const {
     register,

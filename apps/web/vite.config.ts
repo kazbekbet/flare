@@ -1,6 +1,11 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
+
+const rootDir = path.dirname(fileURLToPath(import.meta.url));
+const srcDir = path.resolve(rootDir, 'src');
 
 /**
  * Конфигурация Vite для приложения Flare Web.
@@ -47,12 +52,12 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@app': '/src/app',
-      '@pages': '/src/pages',
-      '@widgets': '/src/widgets',
-      '@features': '/src/features',
-      '@entities': '/src/entities',
-      '@shared': '/src/shared',
+      '@app': path.resolve(srcDir, 'app'),
+      '@pages': path.resolve(srcDir, 'pages'),
+      '@widgets': path.resolve(srcDir, 'widgets'),
+      '@features': path.resolve(srcDir, 'features'),
+      '@entities': path.resolve(srcDir, 'entities'),
+      '@shared': path.resolve(srcDir, 'shared'),
     },
   },
   server: {

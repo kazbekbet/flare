@@ -1,10 +1,9 @@
 import React from 'react';
 
+import { store } from '@app/store';
 import { Provider as ReduxProvider } from 'react-redux';
 
 import { FlareProvider } from '@flare/ui';
-
-import { store } from '../store/index.js';
 
 /**
  * Пропсы `AppProviders`.

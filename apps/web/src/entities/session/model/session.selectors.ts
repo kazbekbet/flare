@@ -1,4 +1,4 @@
-import type { SessionState } from './session.slice.js';
+import type { SessionState } from './session.slice';
 
 /** Минимальный срез state, содержащий session (для типизации селекторов без зависимости на store.ts). */
 interface StateWithSession {

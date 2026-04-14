@@ -1,8 +1,7 @@
 import React from 'react';
 
+import { selectIsAuthenticated } from '@entities/session';
 import { useSelector } from 'react-redux';
-
-import { selectIsAuthenticated } from '../../entities/session/index.js';
 
 /**
  * Пропсы `ProtectedRoute`.

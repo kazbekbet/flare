@@ -1,1 +1,1 @@
-export { SettingsPage } from './ui/settings-page.js';
+export { SettingsPage } from './ui/settings-page';

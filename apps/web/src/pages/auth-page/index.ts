@@ -1,1 +1,1 @@
-export { AuthPage, type AuthPageProps } from './ui/auth-page.js';
+export { AuthPage, type AuthPageProps } from './ui/auth-page';

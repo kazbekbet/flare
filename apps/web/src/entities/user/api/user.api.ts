@@ -1,6 +1,6 @@
-import type { UpdateUserDto } from '@flare/shared';
+import { baseApi, unwrapEnvelope } from '@shared/api';
 
-import { httpClient, unwrap } from '../../../shared/api/index.js';
+import type { UpdateUserDto } from '@flare/shared';
 
 /**
  * Приватный профиль — данные, доступные только самому пользователю.
@@ -15,42 +15,34 @@ export interface PrivateUserProfile {
   updatedAt: string;
 }
 
-/**
- * Публичный ключ пользователя — то, что сервер отдаёт по `GET /users/:id/public-key`.
- */
+/** Ответ `GET /users/:id/public-key`. */
 export interface PublicKeyResponse {
   userId: string;
   publicKey: string;
 }
 
 /**
- * Запрос собственного профиля.
- *
- * @returns Приватный профиль текущего пользователя.
+ * Инжектированные эндпоинты `users`.
+ * Теги:
+ *  - `Me` — провайдится `getMe`, инвалидируется `updateMe`.
  */
-export async function fetchMe(): Promise<PrivateUserProfile> {
-  const response = await httpClient.get<{ data: PrivateUserProfile }>('/users/me');
-  return unwrap(response);
-}
+export const userApi = baseApi.injectEndpoints({
+  endpoints: (build) => ({
+    getMe: build.query<PrivateUserProfile, void>({
+      query: () => ({ url: '/users/me' }),
+      transformResponse: unwrapEnvelope<PrivateUserProfile>,
+      providesTags: ['Me'],
+    }),
+    updateMe: build.mutation<PrivateUserProfile, UpdateUserDto>({
+      query: (body) => ({ url: '/users/me', method: 'PATCH', body }),
+      transformResponse: unwrapEnvelope<PrivateUserProfile>,
+      invalidatesTags: ['Me'],
+    }),
+    getPublicKey: build.query<PublicKeyResponse, string>({
+      query: (userId) => ({ url: `/users/${userId}/public-key` }),
+      transformResponse: unwrapEnvelope<PublicKeyResponse>,
+    }),
+  }),
+});
 
-/**
- * Обновление собственного профиля (PATCH).
- *
- * @param dto - Патч с полями для обновления.
- * @returns Актуальный профиль после обновления.
- */
-export async function updateMe(dto: UpdateUserDto): Promise<PrivateUserProfile> {
-  const response = await httpClient.patch<{ data: PrivateUserProfile }>('/users/me', dto);
-  return unwrap(response);
-}
-
-/**
- * Запрос публичного ключа другого пользователя по ID (для E2E-шифрования).
- *
- * @param userId - ID пользователя.
- * @returns Объект с Base64 публичным ключом.
- */
-export async function fetchPublicKey(userId: string): Promise<PublicKeyResponse> {
-  const response = await httpClient.get<{ data: PublicKeyResponse }>(`/users/${userId}/public-key`);
-  return unwrap(response);
-}
+export const { useGetMeQuery, useUpdateMeMutation, useGetPublicKeyQuery, useLazyGetPublicKeyQuery } = userApi;

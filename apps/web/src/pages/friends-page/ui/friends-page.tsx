@@ -1,9 +1,8 @@
 import React from 'react';
 
+import { MyQrCode } from '@features/qr-generate';
+import { QrScanner } from '@features/qr-scan';
 import { Container, SegmentedControl, Stack } from '@mantine/core';
-
-import { MyQrCode } from '../../../features/qr-generate/index.js';
-import { QrScanner } from '../../../features/qr-scan/index.js';
 
 /** Активная вкладка экрана «Друзья». */
 type Tab = 'my-qr' | 'scan';

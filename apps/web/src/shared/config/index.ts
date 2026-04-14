@@ -1,2 +1,2 @@
-export { env, type WebEnv } from './env.js';
-export { ROUTES } from './routes.js';
+export { env, type WebEnv } from './env';
+export { ROUTES } from './routes';

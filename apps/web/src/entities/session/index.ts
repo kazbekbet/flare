@@ -1,4 +1,4 @@
-export { selectIsAuthenticated, selectIsUnlocked, selectSession } from './model/session.selectors.js';
+export { selectIsAuthenticated, selectIsUnlocked, selectSession } from './model/session.selectors';
 export {
   accessTokenRefreshed,
   authenticated,
@@ -8,4 +8,4 @@ export {
   sessionReducer,
   sessionSlice,
   type SessionState,
-} from './model/session.slice.js';
+} from './model/session.slice';

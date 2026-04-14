@@ -1,10 +1,10 @@
+import { authenticated, sessionReducer } from '@entities/session';
 import { configureStore } from '@reduxjs/toolkit';
 import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { describe, expect, it, vi } from 'vitest';
 
-import { authenticated, sessionReducer } from '../../entities/session/index.js';
-import { ProtectedRoute } from './protected-route.js';
+import { ProtectedRoute } from './protected-route';
 
 function renderWithStore(authenticatedState: boolean, onUnauth: () => void) {
   const store = configureStore({ reducer: { session: sessionReducer } });

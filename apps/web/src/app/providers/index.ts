@@ -1,1 +1,1 @@
-export { AppProviders, type AppProvidersProps } from './app-providers.js';
+export { AppProviders, type AppProvidersProps } from './app-providers';

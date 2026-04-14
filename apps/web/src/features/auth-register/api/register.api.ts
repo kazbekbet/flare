@@ -1,6 +1,6 @@
-import type { RegisterDto } from '@flare/shared';
+import { baseApi, unwrapEnvelope } from '@shared/api';
 
-import { httpClient, unwrap } from '../../../shared/api/index.js';
+import type { RegisterDto } from '@flare/shared';
 
 /**
  * Ответ сервера на `POST /auth/register`.
@@ -16,19 +16,20 @@ export interface RegisterResponse {
 }
 
 /**
- * Регистрирует нового пользователя. Refresh-токен сервер ставит в httpOnly cookie.
- *
- * @param dto - DTO регистрации.
- * @returns Ответ с userId и accessToken.
+ * Инжектированные auth-эндпоинты.
+ * Refresh-токен сервер ставит в httpOnly cookie — отдельного эндпоинта `refresh`
+ * на фронте нет, он вызывается через middleware при 401 (Phase 2).
  */
-export async function registerRequest(dto: RegisterDto): Promise<RegisterResponse> {
-  const response = await httpClient.post<{ data: RegisterResponse }>('/auth/register', dto);
-  return unwrap(response);
-}
+export const authApi = baseApi.injectEndpoints({
+  endpoints: (build) => ({
+    register: build.mutation<RegisterResponse, RegisterDto>({
+      query: (body) => ({ url: '/auth/register', method: 'POST', body }),
+      transformResponse: unwrapEnvelope<RegisterResponse>,
+    }),
+    logout: build.mutation<void, void>({
+      query: () => ({ url: '/auth/logout', method: 'POST' }),
+    }),
+  }),
+});
 
-/**
- * Выполняет logout: инвалидирует сессию и очищает cookie.
- */
-export async function logoutRequest(): Promise<void> {
-  await httpClient.post('/auth/logout');
-}
+export const { useLogoutMutation, useRegisterMutation } = authApi;

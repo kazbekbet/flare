@@ -1,1 +1,9 @@
-export { fetchMe, fetchPublicKey, type PrivateUserProfile, type PublicKeyResponse, updateMe } from './api/user.api.js';
+export {
+  type PrivateUserProfile,
+  type PublicKeyResponse,
+  useGetMeQuery,
+  useGetPublicKeyQuery,
+  useLazyGetPublicKeyQuery,
+  userApi,
+  useUpdateMeMutation,
+} from './api/user.api';

@@ -26,9 +26,19 @@
 
 ---
 
-## Phase 1 — Foundation
+## Phase 1 — Foundation ✅
 
-**Цель:** работающий auth, регистрация по keypair, добавление друзей по QR.
+**Цель:** работающий auth, регистрация по keypair, добавление друзей по QR. **Закрыто.**
+
+### Архитектурные решения, принятые по ходу Phase 1
+
+- **Joi для ENV + Zod для DTO.** Joi нативно интегрируется с `@nestjs/config.validationSchema`. Zod-схемы DTO живут в `@flare/shared` и переиспользуются: фронт — `zodResolver` в RHF, бэк — `createZodDto` + глобальный `ZodValidationPipe` через `APP_PIPE`.
+- **Swagger через `nestjs-zod` v5.** `patchNestJsSwagger` удалён — используется `cleanupOpenApiDoc(createDocument(...))`. UI на `/docs`.
+- **FSD на фронте** с публичным API через `index.ts` каждого слайса и алиасами `@app/@pages/@widgets/@features/@entities/@shared`.
+- **RTK Query с первого дня** (а не с Phase 2, как было в исходном плане). `createApi` в `shared/api/base-api.ts` + `injectEndpoints` в каждом `entities/*/api` и `features/*/api`. JWT через `prepareHeaders` из `session.accessToken`, 401 → `window`-event.
+- **Server — ESM + NodeNext.** Shared-пакет ESM, бесшовный interop. В `apps/server` relative-импорты с явным `.js` (требование Node ESM рантайма).
+- **ESLint override для `apps/server/**`** в корневом `eslint.config.js`: `consistent-type-imports` отключён. Автофикс превращал injected-классы (`ConfigService`, `JwtService`, `UsersService`, …) в `import type`, что ломало `emitDecoratorMetadata` → Nest не мог разрешить DI в рантайме.
+- **MongoDB Replica Set с self-init healthcheck** в docker-compose — отдельного init-контейнера не требуется.
 
 ### Backend
 

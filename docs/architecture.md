@@ -81,19 +81,20 @@ package.json            # Workspace root (pnpm workspaces)
 
 ### 3.1 Технологический стек
 
-| Область      | Решение                                                | Обоснование                                 |
-| ------------ | ------------------------------------------------------ | ------------------------------------------- |
-| Bundler      | Vite + `vite-plugin-pwa`                               | Быстрый HMR, нативный Service Worker        |
-| UI Framework | React 18 + TypeScript                                  | Требование задачи                           |
-| State        | RTK (Redux Toolkit) + RTK Query                        | Предиктивное состояние, кэш API             |
-| Real-time    | socket.io-client                                       | Требование задачи                           |
-| Crypto       | tweetnacl + tweetnacl-util                             | Аудированная, zero-dependency               |
-| Routing      | TanStack Router                                        | Type-safe роуты                             |
-| Forms        | React Hook Form + Zod                                  | Валидация из shared-схем                    |
-| Styling      | CSS Modules + CSS Variables                            | Без runtime-overhead                        |
-| Storage      | idb-keyval (IndexedDB)                                 | Хранение приватных ключей, offline messages |
-| QR           | qrcode.react (генерация) + html5-qrcode (сканирование) |                                             |
-| Images       | browser-image-compression                              | Сжатие до загрузки                          |
+| Область      | Решение                                                | Обоснование                                            |
+| ------------ | ------------------------------------------------------ | ------------------------------------------------------ |
+| Bundler      | Vite + `vite-plugin-pwa`                               | Быстрый HMR, нативный Service Worker                   |
+| UI Framework | React 19 + TypeScript                                  | Последняя стабильная версия                            |
+| Архитектура  | Feature-Sliced Design (app/pages/widgets/features/entities/shared) | Явные слои, `@shared/@entities/@features` алиасы |
+| State        | Redux Toolkit + RTK Query                              | `injectEndpoints` по слайсам, единый кэш, tag-based invalidation |
+| Real-time    | socket.io-client (Phase 2)                             | WebSocket транспорт                                    |
+| Crypto       | tweetnacl + tweetnacl-util                             | Аудированная, zero-dependency                          |
+| Routing      | TanStack Router                                        | Type-safe роуты, `beforeLoad` guard-ы                  |
+| Forms        | React Hook Form + Zod                                  | Схемы из `@flare/shared` переиспользуются с бэкендом   |
+| UI Kit       | Mantine (через `@flare/ui`) + тема `flareTheme`        | Готовые компоненты, dark/light, переопределение токенов — без кастомного CSS |
+| Storage      | idb-keyval (IndexedDB)                                 | AES-GCM-зашифрованный приватный ключ, offline messages (Phase 3) |
+| QR           | qrcode.react (генерация) + html5-qrcode (сканирование) |                                                        |
+| Images       | browser-image-compression                              | Сжатие до загрузки (Phase 3)                           |
 
 ### 3.2 PWA конфигурация
 
@@ -120,25 +121,37 @@ VitePWA({
 });
 ```
 
-### 3.3 Структура приложения
+### 3.3 Структура приложения (Feature-Sliced Design)
 
 ```
-src/
-  app/
-    store.ts              # RTK store
-    router.tsx            # TanStack Router
-  features/
-    auth/                 # Генерация ID, keypair, QR
-    chat/                 # Список чатов, сообщения
-    friends/              # Добавление по QR, список друзей
-    media/                # Загрузка/отображение изображений
-  shared/
-    crypto/               # E2E обёртки над tweetnacl
-    socket/               # Socket.io singleton + RTK listener middleware
-    ui/                   # Локальные переиспользуемые компоненты
-  service-worker/
-    offline-queue.ts      # Очередь сообщений при потере сети
+apps/web/src/
+  app/                       # Инициализация
+    providers/               # FlareProvider (Mantine) + ReduxProvider
+    router/                  # TanStack Router, routeTree, beforeLoad guards
+    store/                   # configureStore + baseApi.middleware, типизированные хуки
+  pages/                     # Один слайс на URL
+    auth-page/               # /auth
+    chats-page/              # /chats, /chats/:id (Phase 2)
+    friends-page/            # /friends (QR + сканер)
+    settings-page/           # /settings (Phase 4)
+  widgets/                   # Композитные блоки (sidebar, chat-list — Phase 2/Desktop UI)
+  features/                  # Пользовательские сценарии
+    auth-register/           # keypair + PIN + IndexedDB + RTK Query mutation
+    qr-generate/             # Генерация своего QR
+    qr-scan/                 # Сканер + fetchPublicKey + sendFriendRequest
+  entities/                  # Бизнес-сущности
+    session/                 # sessionSlice (userId, accessToken, isUnlocked, privateKey)
+    user/                    # RTK Query: getMe, updateMe, getPublicKey
+    friendship/              # RTK Query: getFriends, send/accept/decline
+  shared/                    # Без бизнес-логики
+    api/                     # baseApi (createApi + fetchBaseQuery + JWT + 401 event)
+    config/                  # env, ROUTES
+    crypto/                  # re-export из @flare/shared
+    lib/                     # ProtectedRoute, qr-payload (Zod)
+    storage/                 # keypair-vault (AES-GCM + PBKDF2 + idb-keyval)
 ```
+
+**Правила FSD:** импорты только «вниз» по слоям (`app → pages → widgets → features → entities → shared`). Публичное API каждого слайса — через `index.ts`. Алиасы `@app/@pages/@widgets/@features/@entities/@shared` (Vite + tsconfig paths).
 
 ### 3.4 Offline-стратегия
 
@@ -153,23 +166,29 @@ src/
 ### 4.1 Структура модулей
 
 ```
-src/
-  modules/
-    auth/                 # JWT, refresh tokens, keypair registration
-    users/                # Профиль, публичный ключ, аватары
-    friends/              # Запросы дружбы, список контактов
-    conversations/        # Создание/получение диалогов
-    messages/             # CRUD, доставка, статусы
-    media/                # Presigned S3 URLs, валидация
-    gateway/              # Socket.io WebSocket gateway
-    health/               # Healthcheck endpoint
+apps/server/src/
+  main.ts                   # bootstrap + Swagger (/docs через nestjs-zod cleanupOpenApiDoc)
+  app.module.ts             # Config + Pino + Throttler + Mongoose + APP_PIPE(ZodValidationPipe)
+  config/                   # env.validation.ts (Joi), env.types.ts
   common/
-    guards/               # JwtAuthGuard, WsJwtGuard
-    interceptors/         # Logging, Transform response
-    filters/              # Global exception filter
-    mongoose/             # MongooseModule, connection factory
-  config/                 # ConfigModule с Joi-валидацией
+    guards/                 # JwtAuthGuard, WsJwtGuard
+    interceptors/           # TransformInterceptor (data envelope)
+    filters/                # AllExceptionsFilter (Zod + Http + unknown)
+    decorators/             # @CurrentUser()
+    types/                  # AuthenticatedRequest, JwtAccessPayload
+  modules/
+    auth/                   # register / refresh / logout + JWT + passport-jwt
+    users/                  # /users/me, public-key
+    friends/                # request / accept (transactional DIRECT conv) / decline / list
+    conversations/          # DIRECT-conv orchestration (Phase 1), list + cursor (Phase 2)
+    messages/               # (Phase 2) CRUD, статусы
+    media/                  # (Phase 3) presigned URLs
+    gateway/                # ChatGateway (Phase 1: friend events; Phase 2: messages)
+    mongoose/schemas/       # Users, Sessions, Presences, Friendships, Conversations, Messages
+    health/                 # /health
 ```
+
+**Стек:** NestJS 11 + ESM + NodeNext. DTO-валидация — `nestjs-zod` (`createZodDto` на Zod-схемах из `@flare/shared`, глобальный `ZodValidationPipe` через `APP_PIPE`). OpenAPI — `@nestjs/swagger` + `cleanupOpenApiDoc` (nestjs-zod v5), доступен на `/docs`.
 
 ### 4.2 WebSocket Gateway
 
@@ -716,7 +735,7 @@ Agenda на MongoDB подходит для MVP. При > 1K сообщений/
 | Transport       | HTTPS/WSS + HSTS                                   |
 | Auth            | JWT (15min) + Refresh (7d, httpOnly Secure cookie) |
 | Rate Limiting   | NestJS ThrottlerModule + Nginx limit_req           |
-| Validation      | class-validator + Zod (shared schemas)             |
+| Validation      | Zod-схемы из `@flare/shared` через `nestjs-zod` `ZodValidationPipe` (APP_PIPE) |
 | NoSQL Injection | Mongoose sanitize-mongo-query middleware           |
 | XSS             | CSP headers, sanitize на клиенте                   |
 | CORS            | Whitelist origin в NestJS                          |
@@ -772,22 +791,33 @@ turbo run lint test build --filter=[HEAD^1]
 
 ## 13. MVP Roadmap
 
-### Phase 1 — Foundation (2-3 недели)
+### Phase 0 — Monorepo & infra ✅
 
-- [ ] Turborepo setup, shared пакеты, tsconfig
-- [ ] NestJS: auth, users, friends модули
-- [ ] MongoDB схемы (Mongoose) + индексы + TTL (сессии, присутствие)
-- [ ] Replica Set локально (docker-compose)
-- [ ] React: роутинг, store, auth flow (генерация keypair + регистрация)
-- [ ] QR-генерация своего ID + сканирование чужого
+- [x] Turborepo + pnpm workspaces, config-пакеты (tsconfig/eslint/prettier)
+- [x] `@flare/shared` (типы, Zod-схемы, enum-ы) + `@flare/ui` (Mantine-тема)
+- [x] docker-compose: MongoDB + MinIO
+
+### Phase 1 — Foundation ✅
+
+- [x] NestJS scaffold + Swagger (`/docs` через nestjs-zod) + Joi ENV + Pino + Throttler
+- [x] Mongoose-схемы и индексы для всех 6 коллекций + MongoDB Replica Set (docker-compose с self-init healthcheck)
+- [x] Auth: register / refresh (jti-ротация) / logout + `JwtAuthGuard` + `WsJwtGuard`
+- [x] Users: `/users/me` (GET/PATCH), `/users/:id/public-key`
+- [x] Friends: request / accept (+ транзакционное создание DIRECT-conversation) / decline / list + socket events
+- [x] React PWA (Vite + React 19 + TanStack Router + RTK + RTK Query + Mantine через FlareProvider) в FSD-архитектуре с алиасами `@app/@pages/@features/@entities/@shared`
+- [x] Auth feature: генерация keypair, регистрация, AES-GCM + PBKDF2 шифрование приватного ключа PIN-ом → IndexedDB, `sessionSlice`, `ProtectedRoute`
+- [x] QR feature: генерация (`qrcode.react`) + сканирование (`html5-qrcode`) с Zod-валидацией payload
+- [x] Тесты: `shared` (3) + `web` (11 включая RTK Query integration) + `server` (7) — 21 passed
 
 ### Phase 2 — Core Messaging (2-3 недели)
 
-- [ ] WebSocket Gateway (in-memory adapter — Redis не нужен)
-- [ ] E2E шифрование (tweetnacl интеграция)
-- [ ] RTK + Socket.io middleware (real-time events → Redux)
-- [ ] Список чатов + экран переписки
-- [ ] Статусы доставки (delivered / read receipts)
+- [ ] WebSocket Gateway + presence heartbeat (расширение Phase 1 gateway) + in-memory adapter
+- [ ] Conversations + Messages модули (cursor-пагинация через ObjectId, lastMessage денормализация)
+- [ ] E2E crypto в `@flare/shared`: encryptMessage / decryptMessage / encryptMediaKey / encryptMedia + unit-тесты
+- [ ] Socket.io-client singleton + RTK listener middleware (message:new → messagesSlice, friend:request → friendsSlice, presence:change → uiSlice)
+- [ ] Экран списка чатов (RTK Query getConversations + tag invalidation на message:new)
+- [ ] Экран переписки + отправка (encryptMessage → socket.emit, decrypt на receive)
+- [ ] Статусы доставки (deliveredAt / readAt)
 
 ### Phase 3 — Media + Push + PWA (1-2 недели)
 
@@ -822,6 +852,12 @@ turbo run lint test build --filter=[HEAD^1]
 | **In-memory Socket.io** | Redis adapter               | Достаточно для одного инстанса; Redis легко добавить позже       |
 | **QR = только userId**  | QR = publicKey              | Меньше payload, ключ верифицируется по secure каналу             |
 | **idb-keyval**          | localStorage                | Асинхронный, большой объём, structured data                      |
+| **nestjs-zod**          | class-validator             | Схемы DTO пишем один раз в `@flare/shared`, фронт (RHF) и бэк (`createZodDto`) их переиспользуют; Swagger подтягивает автоматически |
+| **Joi для ENV**         | Zod для всего               | `@nestjs/config.validationSchema` нативно работает с Joi; Zod оставили там, где нужен шаринг с фронтом |
+| **Feature-Sliced Design** | Плоский `features/`       | Явные слои с правилом импорта «вниз» — нет хаоса при росте; ESLint может проверять иерархию |
+| **RTK Query с Phase 1** | axios + useState            | Кэш, tag-invalidation и хуки из коробки; иначе пришлось бы переписывать в Phase 2 |
+| **Server ESM + NodeNext** | CJS                       | Shared-пакет ESM — бесшовный interop; Nest 11 поддерживает ESM нативно |
+| **Алиасы `@shared/...`** | Плоский `@/`               | Видно слой FSD в импорте; легко навесить lint-правило иерархии   |
 
 ---
 

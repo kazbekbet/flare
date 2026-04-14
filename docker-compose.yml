@@ -3,10 +3,19 @@ version: "3.9"
 services:
   mongo:
     image: mongo:7
+    command: ["--replSet", "rs0", "--bind_ip_all"]
     ports:
       - "27017:27017"
     volumes:
       - mongo-data:/data/db
+    healthcheck:
+      # Самоинициализация Replica Set при первом запуске: если rs.status() падает —
+      # пытаемся rs.initiate(). После инициализации healthcheck превращается в обычную проверку статуса.
+      test: echo "try { rs.status().ok } catch (e) { rs.initiate({_id:'rs0',members:[{_id:0,host:'mongo:27017'}]}).ok }" | mongosh --quiet
+      interval: 5s
+      timeout: 30s
+      retries: 30
+      start_period: 5s
     restart: unless-stopped
 
   minio:

@@ -1,0 +1,13 @@
+{
+  "name": "@flare/prettier-config",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js"
+  },
+  "peerDependencies": {
+    "prettier": "^3.0.0"
+  }
+}

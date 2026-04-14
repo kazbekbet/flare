@@ -1,0 +1,26 @@
+{
+  "name": "@flare/shared",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc --project tsconfig.json",
+    "lint": "eslint src/",
+    "test": "echo \"No tests yet\""
+  },
+  "peerDependencies": {
+    "zod": "^3.0.0"
+  },
+  "devDependencies": {
+    "@flare/tsconfig": "workspace:*",
+    "typescript": "^5.0.0",
+    "zod": "^3.24.0"
+  }
+}

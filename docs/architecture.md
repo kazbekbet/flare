@@ -559,7 +559,7 @@ async sendPush(userId: string, payload: PushPayload) {
   const user = await this.userModel.findById(userId).select('fcmToken').lean();
   if (!user?.fcmToken) return;  // нет токена — нет пуша
 
-  await getMessaging().send({
+await getMessaging().send({
     token: user.fcmToken,
     notification: {
       title: payload.senderName,

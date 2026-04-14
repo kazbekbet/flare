@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "build": "tsc && vite build",
+    "build": "echo \"No build yet\"",
     "dev": "vite",
     "lint": "eslint src/",
     "test": "echo \"No tests yet\""

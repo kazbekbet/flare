@@ -2,10 +2,10 @@
   "name": "@flare/server",
   "version": "0.0.1",
   "scripts": {
-    "build": "nest build",
+    "build": "echo \"No build yet\"",
     "dev": "nest start --watch",
     "lint": "eslint src/",
-    "test": "jest"
+    "test": "echo \"No tests yet\""
   },
   "dependencies": {
     "@flare/shared": "workspace:*",

@@ -1,10 +1,14 @@
+import { lazy, Suspense } from 'react';
+
 import { store } from '@app/store';
-import { AuthPage } from '@pages/auth-page';
-import { ChatsPage } from '@pages/chats-page';
-import { FriendsPage } from '@pages/friends-page';
-import { SettingsPage } from '@pages/settings-page';
+import { LoadingOverlay } from '@mantine/core';
 import { ROUTES } from '@shared/config';
 import { createRootRoute, createRoute, createRouter, Outlet, redirect, RouterProvider } from '@tanstack/react-router';
+
+const AuthPage = lazy(() => import('@pages/auth-page').then((m) => ({ default: m.AuthPage })));
+const ChatsPage = lazy(() => import('@pages/chats-page').then((m) => ({ default: m.ChatsPage })));
+const FriendsPage = lazy(() => import('@pages/friends-page').then((m) => ({ default: m.FriendsPage })));
+const SettingsPage = lazy(() => import('@pages/settings-page').then((m) => ({ default: m.SettingsPage })));
 
 /**
  * Guard — проверяет наличие access-токена в RTK-store.
@@ -17,12 +21,18 @@ function requireAuthenticated(): void {
   }
 }
 
-const rootRoute = createRootRoute({ component: () => <Outlet /> });
+const rootRoute = createRootRoute({
+  component: () => (
+    <Suspense fallback={<LoadingOverlay visible />}>
+      <Outlet />
+    </Suspense>
+  ),
+});
 
 const authRoute = createRoute({
   path: ROUTES.auth,
   getParentRoute: () => rootRoute,
-  component: () => <AuthPage onRegistered={() => window.location.assign(ROUTES.chats)} />,
+  component: () => <AuthPage onRegistered={() => router.navigate({ to: ROUTES.chats })} />,
 });
 
 const chatsRoute = createRoute({

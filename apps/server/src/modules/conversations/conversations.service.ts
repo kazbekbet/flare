@@ -1,7 +1,7 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 
-import { type ClientSession, Connection, Model, Types } from 'mongoose';
+import { type ClientSession, type Connection, Model, Types } from 'mongoose';
 
 import { ConversationType } from '@flare/shared';
 

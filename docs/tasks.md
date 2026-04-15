@@ -82,6 +82,9 @@
 
 | #   | Статус | Задача                                         | Детали                                                                                                                                                                                                                                                                                                  |
 | --- | ------ | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 33  | [ ]    | **Auth login + зашифрованный бэкап ключа (backend)** | `POST /auth/login` — `{ displayName, signature, timestamp }`: найти юзера по displayName, верифицировать nacl-подпись через publicKey из БД, timestamp не старше 60с (защита от replay). Выдать токены как в register. `POST /users/me/key-backup` — принять `{ encryptedBlob: string }` (AES-GCM приватного ключа, зашифрованного PIN-ом на клиенте), сохранить в User-документе. `GET /users/me/key-backup` — вернуть `encryptedBlob`. Оба эндпоинта за JwtAuthGuard. |
+| 34  | [ ]    | **`signChallenge` / `verifyChallenge` в `@flare/shared`** | `signChallenge(privateKeyB64: string, timestamp: number): string` — `nacl.sign.detached(encode(timestamp), privateKey)` → Base64. `verifyChallenge(publicKeyB64: string, signatureB64: string, timestamp: number): boolean`. Unit-тесты: sign → verify = true; подделанная подпись = false; timestamp > 60s = false. |
+| 35  | [ ]    | **Auth startup flow + Login feature (frontend)** | При старте приложения: `POST /auth/refresh` (cookie) → успех → dispatch `accessTokenRefreshed` → `/chats`. Провал → проверить IndexedDB: ключ есть → экран PIN-входа (`auth-login` feature: ввод PIN → `loadPrivateKey` → `signChallenge` → `POST /auth/login` → dispatch `authenticated` → `/chats`); ключ отсутствует → экран регистрации. После успешной регистрации на новом устройстве — `POST /users/me/key-backup` с зашифрованным blob. При PIN-входе на новом устройстве (IndexedDB пуст, но cookie протухла): `GET /users/me/key-backup` → расшифровать blob PIN-ом → восстановить keypair в IndexedDB. `AuthPage` — переключатель «Регистрация / Вход». |
 | 14  | [ ]    | **WebSocket Gateway + presence heartbeat**     | `ChatGateway` (OnGatewayConnection/Disconnect). При connect: WsJwtGuard, upsert Presence, `socket.join(user:id + conv:id*N)`. Heartbeat event каждые 30с → upsert Presence.updatedAt. `message:send` handler сохраняет и emit в conv:room.                                                              |
 | 15  | [ ]    | **Conversations + Messages модули (backend)**  | `GET /conversations` — список по memberIds, сортировка по lastMessage.createdAt. `GET /conversations/:id/messages?cursor=&limit=50` — cursor-based через ObjectId ($lt, sort \_id:-1). При создании сообщения: updateOne `Conversation.lastMessage`. Транзакция при создании conversation + membership. |
 | 16  | [ ]    | **E2E crypto в `@flare/shared`**               | `generateIdentityKeypair()`. `encryptMessage(plaintext, recipientPubKey, senderPrivKey) → {ciphertext, nonce}`. `decryptMessage(...)`. `encryptMediaKey / decryptMediaKey`. `encryptMedia(bytes, key)` через `nacl.secretbox`. Unit-тесты (vitest).                                                     |
@@ -184,6 +187,10 @@
  ├── 12 (auth UI)   → 13, 17, 18, 19
  └── 16 (crypto)    → 19, 22
 
+33 (login backend)  → 35
+34 (signChallenge)  → 33, 35
+35 (auth flow UI)   → 17, 18, 19
+
 14 (gateway)        → 17, 20, 26
 15 (conv+msg)       → 18, 19, 27
 17 (socket client)  → 18, 19, 20, 26
@@ -224,5 +231,5 @@
 - Голосовые/видео звонки (WebRTC)
 - Исчезающие сообщения
 - Double Ratchet / Forward Secrecy
-- Бэкап ключей (BIP39 recovery phrase)
+- Бэкап ключей через BIP39 recovery phrase (реализован через зашифрованный blob на сервере — задачи 33–35)
 - Redis (добавить только при необходимости второго инстанса NestJS)

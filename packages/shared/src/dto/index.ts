@@ -53,6 +53,25 @@ export const RegisterDtoSchema = z.object({
 export type RegisterDto = z.infer<typeof RegisterDtoSchema>;
 
 /**
+ * Zod-схема для обновления профиля текущего пользователя.
+ * Все поля опциональны — патч-запрос. Пустой объект отвергается.
+ *
+ * @prop {string} [displayName] - Новое отображаемое имя (2–64 символа).
+ * @prop {string} [avatarUrl] - URL аватара.
+ * @prop {string} [fcmToken] - FCM-токен устройства. Передавать `null`-строку нельзя, используйте omit.
+ */
+export const UpdateUserDtoSchema = z
+  .object({
+    displayName: z.string().min(2).max(64).optional(),
+    avatarUrl: z.string().url().optional(),
+    fcmToken: z.string().min(1).optional(),
+  })
+  .refine((v) => Object.keys(v).length > 0, { message: 'At least one field is required' });
+
+/** Тип DTO для обновления профиля, выведенный из Zod-схемы. */
+export type UpdateUserDto = z.infer<typeof UpdateUserDtoSchema>;
+
+/**
  * Zod-схема для отправки запроса на добавление в друзья.
  *
  * @prop {string} addresseeId - ID пользователя, которому адресован запрос.

@@ -1,26 +1,59 @@
 {
   "name": "@flare/server",
   "version": "0.0.1",
+  "type": "module",
   "scripts": {
-    "build": "echo \"No build yet\"",
+    "build": "tsc --project tsconfig.json",
     "dev": "nest start --watch",
+    "start": "node dist/main.js",
     "lint": "eslint src/",
-    "test": "echo \"No tests yet\""
+    "test": "jest --config jest.config.cjs --passWithNoTests"
   },
   "dependencies": {
     "@flare/shared": "workspace:*",
     "@nestjs/common": "^11.0.0",
+    "@nestjs/config": "^4.0.4",
     "@nestjs/core": "^11.0.0",
+    "@nestjs/jwt": "^11.0.2",
+    "@nestjs/mongoose": "^11.0.4",
+    "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.0.0",
+    "@nestjs/platform-socket.io": "^11.1.19",
+    "@nestjs/swagger": "^11.2.7",
+    "@nestjs/throttler": "^6.5.0",
+    "@nestjs/websockets": "^11.1.19",
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
+    "helmet": "^8.1.0",
+    "joi": "^18.1.2",
+    "mongoose": "^9.4.1",
+    "nestjs-pino": "^4.6.1",
+    "nestjs-zod": "^5.3.0",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
+    "pino": "^10.3.1",
+    "pino-http": "^11.0.0",
     "reflect-metadata": "^0.2.0",
-    "rxjs": "^7.8.0"
+    "rxjs": "^7.8.0",
+    "socket.io": "^4.8.3",
+    "zod": "^3.24.0"
   },
   "devDependencies": {
-    "@flare/tsconfig": "workspace:*",
     "@flare/eslint-config": "workspace:*",
+    "@flare/tsconfig": "workspace:*",
     "@nestjs/cli": "^11.0.0",
     "@nestjs/testing": "^11.0.0",
+    "@types/bcryptjs": "^3.0.0",
+    "@types/cookie-parser": "^1.4.10",
+    "@types/express": "^5.0.6",
+    "@types/jest": "^30.0.0",
     "@types/node": "^22.0.0",
+    "@types/passport-jwt": "^4.0.1",
+    "@types/supertest": "^7.2.0",
+    "jest": "^30.3.0",
+    "pino-pretty": "^13.1.3",
+    "supertest": "^7.2.2",
+    "ts-jest": "^29.4.9",
     "typescript": "^5.0.0"
   }
 }

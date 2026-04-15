@@ -4,8 +4,15 @@
   "type": "module",
   "packageManager": "pnpm@9.0.0",
   "scripts": {
+    "bootstrap": "pnpm install && turbo run build --filter=@flare/shared --filter=@flare/ui",
+    "services:up": "docker compose up -d mongo minio",
+    "services:down": "docker compose down",
+    "services:wait": "wait-on tcp:27017 tcp:9000",
+    "dev": "pnpm services:up && pnpm services:wait && concurrently -k -n shared,ui,server,web -c cyan,yellow,magenta,green \"pnpm --filter @flare/shared dev\" \"pnpm --filter @flare/ui dev\" \"pnpm --filter @flare/server dev\" \"pnpm --filter @flare/web dev\"",
+    "dev:web": "pnpm --filter @flare/web dev",
+    "dev:server": "pnpm --filter @flare/server dev",
+    "stop": "pnpm services:down",
     "build": "turbo run build",
-    "dev": "turbo run dev",
     "lint": "turbo run lint",
     "test": "turbo run test",
     "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\" --ignore-path .gitignore"
@@ -13,9 +20,11 @@
   "devDependencies": {
     "@flare/eslint-config": "workspace:*",
     "@flare/prettier-config": "workspace:*",
+    "concurrently": "^9.2.1",
     "eslint": "^9.0.0",
     "lefthook": "^2.1.5",
     "prettier": "latest",
-    "turbo": "latest"
+    "turbo": "latest",
+    "wait-on": "^9.0.5"
   }
 }

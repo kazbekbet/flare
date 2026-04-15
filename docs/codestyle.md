@@ -55,6 +55,38 @@ import { getUser } from '@flare/shared';
 
 ---
 
+## Пустые строки внутри функций
+
+Тело функции разбивается пустыми строками на смысловые группы:
+
+1. **Объявления** — переменные и константы
+2. **Действия** — вызовы функций, вычисления, мутации
+3. **Возврат** — `return`
+
+```ts
+// правильно
+const keypair = generateIdentityKeypair();
+const dto = { displayName, publicKey: keypair.publicKey };
+const result = await dispatch(authApi.endpoints.register.initiate(dto)).unwrap();
+
+await storePrivateKey(keypair.privateKey, args.pin);
+dispatch(authenticated({ userId: result.userId, displayName, publicKey: keypair.publicKey }));
+
+return result.userId;
+
+// неправильно — всё слитно
+const keypair = generateIdentityKeypair();
+const dto = { displayName, publicKey: keypair.publicKey };
+const result = await dispatch(authApi.endpoints.register.initiate(dto)).unwrap();
+await storePrivateKey(keypair.privateKey, args.pin);
+dispatch(authenticated({ userId: result.userId, displayName, publicKey: keypair.publicKey }));
+return result.userId;
+```
+
+Prettier пустые строки не добавляет — расставляются вручную (или LLM).
+
+---
+
 ## TypeScript
 
 - Строгий режим (`strict: true`) во всех пакетах

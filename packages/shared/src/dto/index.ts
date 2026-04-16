@@ -2,6 +2,14 @@ import { z } from 'zod';
 
 import { MessageType } from '../enums/index.js';
 
+const OBJECT_ID_REGEX = /^[a-f\d]{24}$/i;
+
+/**
+ * Validates that a string is a valid 24-character hex MongoDB ObjectId.
+ * Uses a regex rather than importing mongoose to keep the package isomorphic.
+ */
+export const objectIdSchema = z.string().regex(OBJECT_ID_REGEX, 'Invalid ObjectId');
+
 /**
  * Zod-схема метаданных медиафайла внутри сообщения.
  * Используется как часть SendMessageDtoSchema.
@@ -25,7 +33,7 @@ const MessageMediaSchema = z.object({
  * @prop {object} [media] - Метаданные медиафайла (только для type === IMAGE).
  */
 export const SendMessageDtoSchema = z.object({
-  conversationId: z.string().min(1),
+  conversationId: objectIdSchema,
   encryptedContent: z.string().min(1),
   nonce: z.string().min(1),
   type: z.nativeEnum(MessageType).default(MessageType.TEXT),
@@ -77,7 +85,7 @@ export type UpdateUserDto = z.infer<typeof UpdateUserDtoSchema>;
  * @prop {string} addresseeId - ID пользователя, которому адресован запрос.
  */
 export const CreateFriendRequestDtoSchema = z.object({
-  addresseeId: z.string().min(1),
+  addresseeId: objectIdSchema,
 });
 
 /** Тип DTO для запроса дружбы, выведенный из Zod-схемы. */
@@ -89,7 +97,7 @@ export type CreateFriendRequestDto = z.infer<typeof CreateFriendRequestDtoSchema
  * @prop {string} friendshipId - ID записи дружбы, которую нужно принять.
  */
 export const AcceptFriendDtoSchema = z.object({
-  friendshipId: z.string().min(1),
+  friendshipId: objectIdSchema,
 });
 
 /** Тип DTO для принятия запроса дружбы, выведенный из Zod-схемы. */

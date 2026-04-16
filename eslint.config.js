@@ -48,7 +48,8 @@ export default [
       'boundaries/include': ['apps/web/src/**/*'],
     },
     rules: {
-      'boundaries/element-types': [
+      // 'boundaries/element-types' was renamed to 'boundaries/dependencies' in v6
+      'boundaries/dependencies': [
         'error',
         {
           default: 'disallow',

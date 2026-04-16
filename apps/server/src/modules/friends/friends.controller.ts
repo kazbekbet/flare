@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 
 import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard.js';
@@ -19,6 +20,7 @@ export class FriendsController {
   constructor(private readonly friendsService: FriendsService) {}
 
   @Post('request')
+  @Throttle({ default: { ttl: 60 * 1000, limit: 20 } })
   @ApiOperation({ summary: 'Отправить запрос на добавление в друзья' })
   create(@CurrentUser() user: AuthenticatedUser, @Body() dto: CreateFriendRequestDto): Promise<FriendshipView> {
     return this.friendsService.createRequest(user.id, dto);

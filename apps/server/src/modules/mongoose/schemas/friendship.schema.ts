@@ -31,3 +31,4 @@ export type FriendshipDocument = HydratedDocument<Friendship>;
 export const FriendshipSchema = SchemaFactory.createForClass(Friendship);
 FriendshipSchema.index({ requesterId: 1, addresseeId: 1 }, { unique: true });
 FriendshipSchema.index({ addresseeId: 1, status: 1 });
+FriendshipSchema.index({ requesterId: 1, status: 1 });

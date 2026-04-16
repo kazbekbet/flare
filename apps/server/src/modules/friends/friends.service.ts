@@ -9,6 +9,7 @@ import { ConversationsService } from '../conversations/conversations.service.js'
 import { EventBusService } from '../events/event-bus.service.js';
 import { Friendship, type FriendshipDocument } from '../mongoose/schemas/friendship.schema.js';
 import { User, type UserDocument } from '../mongoose/schemas/user.schema.js';
+import { type WithTimestamps } from '../mongoose/types.js';
 
 /**
  * Представление friendship-записи, возвращаемое клиенту.
@@ -181,7 +182,7 @@ export class FriendsService {
   }
 
   private toView(doc: FriendshipDocument): FriendshipView {
-    const d = doc as FriendshipDocument & { createdAt: Date; updatedAt: Date };
+    const d = doc as WithTimestamps<FriendshipDocument>;
     return {
       id: doc.id,
       requesterId: String(doc.requesterId),

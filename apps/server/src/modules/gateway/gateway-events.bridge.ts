@@ -1,4 +1,6 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+
+import { Subscription } from 'rxjs';
 
 import { EventBusService } from '../events/event-bus.service.js';
 import { ChatGateway, ServerEvents } from './chat.gateway.js';
@@ -8,14 +10,16 @@ import { ChatGateway, ServerEvents } from './chat.gateway.js';
  * Subscribes to AppEvents and forwards them via ChatGateway.emitToUser.
  */
 @Injectable()
-export class GatewayEventsBridge implements OnModuleInit {
+export class GatewayEventsBridge implements OnModuleInit, OnModuleDestroy {
+  private subscription!: Subscription;
+
   constructor(
     private readonly eventBus: EventBusService,
     private readonly gateway: ChatGateway,
   ) {}
 
   onModuleInit(): void {
-    this.eventBus.events$.subscribe((event) => {
+    this.subscription = this.eventBus.events$.subscribe((event) => {
       switch (event.type) {
         case 'FriendRequestCreated':
           this.gateway.emitToUser(event.addresseeId, ServerEvents.FRIEND_REQUEST, event.friendship);
@@ -28,5 +32,9 @@ export class GatewayEventsBridge implements OnModuleInit {
           break;
       }
     });
+  }
+
+  onModuleDestroy(): void {
+    this.subscription.unsubscribe();
   }
 }

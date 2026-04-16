@@ -1,0 +1,15 @@
+{
+  "extends": "@flare/tsconfig/base.json",
+  "compilerOptions": {
+    "outDir": "./dist/migrations",
+    "rootDir": "./migrations",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  },
+  "include": ["migrations/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

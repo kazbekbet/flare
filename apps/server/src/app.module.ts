@@ -15,6 +15,7 @@ import { EventsModule } from './modules/events/events.module.js';
 import { FriendsModule } from './modules/friends/friends.module.js';
 import { GatewayModule } from './modules/gateway/gateway.module.js';
 import { HealthModule } from './modules/health/health.module.js';
+import { MigrationsModule } from './modules/migrations/migrations.module.js';
 import { UsersModule } from './modules/users/users.module.js';
 
 /**
@@ -64,6 +65,7 @@ import { UsersModule } from './modules/users/users.module.js';
         uri: config.get('MONGO_URI', { infer: true }),
       }),
     }),
+    MigrationsModule,
     EventsModule,
     AuthModule,
     UsersModule,

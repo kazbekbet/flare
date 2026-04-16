@@ -11,6 +11,7 @@ import type { AppEnv } from './config/env.types.js';
 import { envValidationSchema } from './config/env.validation.js';
 import { AuthModule } from './modules/auth/auth.module.js';
 import { ConversationsModule } from './modules/conversations/conversations.module.js';
+import { EventsModule } from './modules/events/events.module.js';
 import { FriendsModule } from './modules/friends/friends.module.js';
 import { GatewayModule } from './modules/gateway/gateway.module.js';
 import { HealthModule } from './modules/health/health.module.js';
@@ -63,6 +64,7 @@ import { UsersModule } from './modules/users/users.module.js';
         uri: config.get('MONGO_URI', { infer: true }),
       }),
     }),
+    EventsModule,
     AuthModule,
     UsersModule,
     FriendsModule,

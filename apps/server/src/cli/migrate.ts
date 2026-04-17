@@ -1,12 +1,12 @@
 /**
- * Standalone CLI for running Mongoose migrations.
+ * Автономный CLI для запуска Mongoose-миграций.
  *
- * Usage (after build):
- *   node dist/cli/migrate.js up      # apply pending migrations
- *   node dist/cli/migrate.js down    # roll back last migration
- *   node dist/cli/migrate.js status  # show applied/pending
+ * Использование (после сборки):
+ *   node dist/cli/migrate.js up      # применить ожидающие миграции
+ *   node dist/cli/migrate.js down    # откатить последнюю миграцию
+ *   node dist/cli/migrate.js status  # показать статус миграций
  *
- * Via package scripts:
+ * Через скрипты пакета:
  *   pnpm --filter @flare/server migrate:up
  *   pnpm --filter @flare/server migrate:down
  *   pnpm --filter @flare/server migrate:status
@@ -18,6 +18,22 @@ import { MigrationsService } from '../modules/migrations/migrations.service.js';
 
 import 'reflect-metadata';
 
+type Command = 'up' | 'down' | 'status';
+
+async function printStatus(service: MigrationsService): Promise<void> {
+  const rows = await service.status();
+  if (rows.length === 0) {
+    console.log('No migrations found.');
+    return;
+  }
+  console.log('\nMigration status:\n');
+  for (const row of rows) {
+    const applied = row.appliedAt ? `  (applied ${row.appliedAt.toISOString()})` : '';
+    console.log(`  [${row.status === 'applied' ? 'x' : ' '}] v${row.version} — ${row.name}${applied}`);
+  }
+  console.log();
+}
+
 async function main(): Promise<void> {
   const command = process.argv[2];
   if (!command || !['up', 'down', 'status'].includes(command)) {
@@ -25,31 +41,21 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  // Bootstrap a minimal application context (no HTTP server).
+  // Инициализируем минимальный контекст приложения (без HTTP-сервера).
   const app = await NestFactory.createApplicationContext(AppModule, {
     logger: ['error', 'warn', 'log'],
   });
 
   const service = app.get(MigrationsService);
 
+  const handlers: Record<Command, () => Promise<void>> = {
+    up: () => service.migrateUp(),
+    down: () => service.migrateDown(),
+    status: () => printStatus(service),
+  };
+
   try {
-    if (command === 'up') {
-      await service.migrateUp();
-    } else if (command === 'down') {
-      await service.migrateDown();
-    } else {
-      const rows = await service.status();
-      if (rows.length === 0) {
-        console.log('No migrations found.');
-      } else {
-        console.log('\nMigration status:\n');
-        for (const row of rows) {
-          const applied = row.appliedAt ? `  (applied ${row.appliedAt.toISOString()})` : '';
-          console.log(`  [${row.status === 'applied' ? 'x' : ' '}] v${row.version} — ${row.name}${applied}`);
-        }
-        console.log();
-      }
-    }
+    await handlers[command as Command]();
   } finally {
     await app.close();
   }

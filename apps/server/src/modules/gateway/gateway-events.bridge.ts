@@ -6,8 +6,8 @@ import { EventBusService } from '../events/event-bus.service.js';
 import { ChatGateway, ServerEvents } from './chat.gateway.js';
 
 /**
- * Bridges the in-process EventBus to WebSocket clients.
- * Subscribes to AppEvents and forwards them via ChatGateway.emitToUser.
+ * Связывает внутрипроцессную EventBus с WebSocket-клиентами.
+ * Подписывается на AppEvent-ы и пересылает их через ChatGateway.emitToUser.
  */
 @Injectable()
 export class GatewayEventsBridge implements OnModuleInit, OnModuleDestroy {

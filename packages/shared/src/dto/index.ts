@@ -5,8 +5,8 @@ import { MessageType } from '../enums/index.js';
 const OBJECT_ID_REGEX = /^[a-f\d]{24}$/i;
 
 /**
- * Validates that a string is a valid 24-character hex MongoDB ObjectId.
- * Uses a regex rather than importing mongoose to keep the package isomorphic.
+ * Проверяет, что строка является валидным 24-символьным hex MongoDB ObjectId.
+ * Использует regex вместо импорта mongoose, чтобы пакет оставался изоморфным.
  */
 export const objectIdSchema = z.string().regex(OBJECT_ID_REGEX, 'Invalid ObjectId');
 

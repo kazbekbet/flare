@@ -10,9 +10,9 @@ import { type Migration } from './migration.types.js';
 import { MigrationRecord } from './migration-record.schema.js';
 
 /**
- * Loads migration files from `<repo-root>/apps/server/migrations/`,
- * compares them against applied records in `_migrations`, and runs
- * `up()` / `down()` as needed.
+ * Загружает файлы миграций из `<repo-root>/apps/server/migrations/`,
+ * сравнивает их с применёнными записями в `_migrations` и запускает
+ * `up()` / `down()` по необходимости.
  */
 @Injectable()
 export class MigrationsService {
@@ -24,16 +24,16 @@ export class MigrationsService {
     private readonly migrationModel: Model<MigrationRecord>,
   ) {}
 
-  /** Absolute path to the directory containing compiled migration files. */
+  /** Абсолютный путь к директории скомпилированных файлов миграций. */
   private get migrationsDir(): string {
-    // __dirname is unavailable in ESM; derive from import.meta.url.
+    // __dirname недоступен в ESM; получаем путь из import.meta.url.
     const here = fileURLToPath(import.meta.url);
-    // Compiled service lives at dist/modules/migrations/migrations.service.js.
-    // Migration files compile to dist/migrations/ via tsconfig.migrations.json.
+    // Скомпилированный сервис находится в dist/modules/migrations/migrations.service.js.
+    // Файлы миграций компилируются в dist/migrations/ через tsconfig.migrations.json.
     return path.resolve(path.dirname(here), '..', '..', 'migrations');
   }
 
-  /** Loads and returns all migrations sorted by version ascending. */
+  /** Загружает и возвращает все миграции, отсортированные по версии по возрастанию. */
   async loadMigrations(): Promise<Migration[]> {
     const dir = this.migrationsDir;
 
@@ -49,7 +49,7 @@ export class MigrationsService {
     const migrations: Migration[] = [];
     for (const file of files) {
       const filePath = path.join(dir, file);
-      // Use dynamic import so compiled JS and ts-node both work.
+      // Используем динамический import — работает как с компилированным JS, так и с ts-node.
       const mod = (await import(pathToFileURL(filePath).href)) as { default: Migration };
       migrations.push(mod.default);
     }
@@ -57,13 +57,13 @@ export class MigrationsService {
     return migrations.sort((a, b) => a.version - b.version);
   }
 
-  /** Returns the set of versions already recorded in `_migrations`. */
+  /** Возвращает множество версий, уже записанных в `_migrations`. */
   async appliedVersions(): Promise<Set<number>> {
     const records = await this.migrationModel.find({}, { version: 1 }).lean();
     return new Set(records.map((r) => r.version));
   }
 
-  /** Applies all pending migrations in ascending order. */
+  /** Применяет все ожидающие миграции в порядке возрастания версий. */
   async migrateUp(): Promise<void> {
     const migrations = await this.loadMigrations();
     const applied = await this.appliedVersions();
@@ -86,7 +86,7 @@ export class MigrationsService {
     }
   }
 
-  /** Rolls back the most recently applied migration. */
+  /** Откатывает последнюю применённую миграцию. */
   async migrateDown(): Promise<void> {
     const records = await this.migrationModel.find().sort({ version: -1 }).limit(1).lean();
     if (records.length === 0) {
@@ -108,7 +108,7 @@ export class MigrationsService {
     this.logger.log(`Migration ${migration.version} rolled back.`);
   }
 
-  /** Prints a status table of applied/pending migrations. */
+  /** Возвращает таблицу статусов применённых и ожидающих миграций. */
   async status(): Promise<Array<{ version: number; name: string; status: 'applied' | 'pending'; appliedAt?: Date }>> {
     const migrations = await this.loadMigrations();
     const applied = await this.appliedVersions();

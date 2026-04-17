@@ -7,7 +7,7 @@ import { GatewayEventsBridge } from './gateway-events.bridge.js';
 /**
  * Модуль WebSocket Gateway.
  * Импортирует `AuthModule` для доступа к `JwtModule` в `WsJwtGuard`.
- * `GatewayEventsBridge` subscribes to EventBus (global) and forwards events to sockets.
+ * `GatewayEventsBridge` подписывается на глобальный EventBus и пересылает события сокетам.
  */
 @Module({
   imports: [AuthModule],

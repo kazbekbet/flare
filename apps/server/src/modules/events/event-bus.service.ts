@@ -5,20 +5,20 @@ import { Observable, Subject } from 'rxjs';
 import type { AppEvent } from './app-events.js';
 
 /**
- * In-process event bus backed by an RxJS Subject.
- * Registered globally so any module can inject it without importing EventsModule.
+ * Внутрипроцессная шина событий на основе RxJS Subject.
+ * Зарегистрирована глобально — любой модуль может инжектировать её без импорта EventsModule.
  */
 @Injectable()
 export class EventBusService {
   private readonly subject = new Subject<AppEvent>();
 
-  /** Observable stream of all application events. */
+  /** Поток всех событий приложения. */
   readonly events$: Observable<AppEvent> = this.subject.asObservable();
 
   /**
-   * Publishes an event to all current subscribers.
+   * Публикует событие всем текущим подписчикам.
    *
-   * @param event - The application event to emit.
+   * @param event - Событие приложения.
    */
   emit(event: AppEvent): void {
     this.subject.next(event);

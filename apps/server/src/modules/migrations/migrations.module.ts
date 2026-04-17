@@ -5,8 +5,8 @@ import { MigrationRecord, MigrationRecordSchema } from './migration-record.schem
 import { MigrationsService } from './migrations.service.js';
 
 /**
- * Provides the migration runner as a NestJS module.
- * Auto-apply on startup is opt-in: set RUN_MIGRATIONS_ON_BOOT=true.
+ * Предоставляет runner миграций как NestJS-модуль.
+ * Автоприменение при старте — опционально: установите RUN_MIGRATIONS_ON_BOOT=true.
  */
 @Module({
   imports: [MongooseModule.forFeature([{ name: MigrationRecord.name, schema: MigrationRecordSchema }])],

@@ -1,22 +1,22 @@
 /**
- * Typed wrappers around the Web Crypto API.
- * All `as unknown as BufferSource` casts are concentrated here so the rest of
- * the codebase works with plain TypedArrays.
+ * Типизированные обёртки над Web Crypto API.
+ * Все приведения `as unknown as BufferSource` сосредоточены здесь,
+ * чтобы остальной код работал с обычными TypedArray.
  *
- * This module is web-only (uses `window.crypto.subtle`) and must NOT be moved
- * to packages/shared which is isomorphic.
+ * Модуль предназначен только для браузера (использует `window.crypto.subtle`)
+ * и не должен переноситься в packages/shared, который является изоморфным.
  */
 
 const subtle = crypto.subtle;
 
-/** Number of PBKDF2 iterations used when deriving keys from a PIN. */
+/** Число итераций PBKDF2 при выведении ключа из PIN. */
 export const PBKDF2_ITERATIONS = 150_000;
 
 /**
- * Derives a 256-bit AES-GCM key from a user-supplied PIN via PBKDF2-SHA256.
+ * Выводит 256-битный AES-GCM ключ из PIN-кода пользователя через PBKDF2-SHA256.
  *
- * @param pin  - User PIN string.
- * @param salt - Random 16-byte salt.
+ * @param pin  - PIN-строка пользователя.
+ * @param salt - Случайная 16-байтная соль.
  */
 export async function deriveKey(pin: string, salt: Uint8Array): Promise<CryptoKey> {
   const baseKey = await subtle.importKey('raw', new TextEncoder().encode(pin), { name: 'PBKDF2' }, false, [
@@ -37,12 +37,12 @@ export async function deriveKey(pin: string, salt: Uint8Array): Promise<CryptoKe
 }
 
 /**
- * Encrypts plaintext with AES-GCM.
+ * Шифрует данные алгоритмом AES-GCM.
  *
- * @param plaintext - Raw bytes to encrypt.
- * @param key       - AES-GCM CryptoKey (encrypt usage).
- * @param iv        - 12-byte initialisation vector.
- * @returns Ciphertext as a new Uint8Array.
+ * @param plaintext - Исходные байты для шифрования.
+ * @param key       - CryptoKey AES-GCM (использование encrypt).
+ * @param iv        - 12-байтный вектор инициализации.
+ * @returns Зашифрованные данные в виде нового Uint8Array.
  */
 export async function encryptAesGcm(plaintext: Uint8Array, key: CryptoKey, iv: Uint8Array): Promise<Uint8Array> {
   const buffer = await subtle.encrypt(
@@ -54,12 +54,12 @@ export async function encryptAesGcm(plaintext: Uint8Array, key: CryptoKey, iv: U
 }
 
 /**
- * Decrypts ciphertext with AES-GCM.
+ * Расшифровывает данные алгоритмом AES-GCM.
  *
- * @param ciphertext - Encrypted bytes.
- * @param key        - AES-GCM CryptoKey (decrypt usage).
- * @param iv         - 12-byte initialisation vector used during encryption.
- * @returns Plaintext as a new Uint8Array.
+ * @param ciphertext - Зашифрованные байты.
+ * @param key        - CryptoKey AES-GCM (использование decrypt).
+ * @param iv         - 12-байтный вектор инициализации, использованный при шифровании.
+ * @returns Расшифрованные данные в виде нового Uint8Array.
  */
 export async function decryptAesGcm(ciphertext: Uint8Array, key: CryptoKey, iv: Uint8Array): Promise<Uint8Array> {
   const buffer = await subtle.decrypt(

@@ -44,7 +44,7 @@ describe('ConversationsService', () => {
   });
 
   describe('ensureDirectConversation', () => {
-    // Real DB/session infrastructure needed for full integration — unit test uses mocked session.
+    // Для полной интеграции нужна реальная инфраструктура DB/session — юнит-тест использует мок сессии.
 
     it('returns existing conversation id when one already exists', async () => {
       const existingId = new Types.ObjectId(CONV_ID);

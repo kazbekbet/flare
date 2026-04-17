@@ -3,8 +3,8 @@ import { Global, Module } from '@nestjs/common';
 import { EventBusService } from './event-bus.service.js';
 
 /**
- * Global module that provides EventBusService to every other module.
- * No imports required — just inject EventBusService directly.
+ * Глобальный модуль, предоставляющий EventBusService всем остальным модулям.
+ * Импортировать не нужно — достаточно инжектировать EventBusService напрямую.
  */
 @Global()
 @Module({

@@ -3,8 +3,8 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { type HydratedDocument } from 'mongoose';
 
 /**
- * Tracks which migrations have been applied.
- * Stored in the `_migrations` collection.
+ * Хранит информацию о применённых миграциях.
+ * Коллекция `_migrations`.
  */
 @Schema({ collection: '_migrations', timestamps: true })
 export class MigrationRecord {

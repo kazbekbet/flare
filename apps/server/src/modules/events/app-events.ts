@@ -1,13 +1,13 @@
 import type { FriendshipView } from '../friends/friends.service.js';
 
-/** Emitted when a new friend request is created. */
+/** Отправляется при создании нового запроса дружбы. */
 export interface FriendRequestCreatedEvent {
   type: 'FriendRequestCreated';
   addresseeId: string;
   friendship: FriendshipView;
 }
 
-/** Emitted when a friend request is accepted. */
+/** Отправляется при принятии запроса дружбы. */
 export interface FriendRequestAcceptedEvent {
   type: 'FriendRequestAccepted';
   requesterId: string;
@@ -15,5 +15,5 @@ export interface FriendRequestAcceptedEvent {
   conversationId: string;
 }
 
-/** Discriminated union of all application events. */
+/** Размеченное объединение всех событий приложения. */
 export type AppEvent = FriendRequestCreatedEvent | FriendRequestAcceptedEvent;

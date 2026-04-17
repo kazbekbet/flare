@@ -10,7 +10,7 @@ import { FriendsService } from './friends.service.js';
 /**
  * Модуль управления связями дружбы.
  * Зависит от `ConversationsModule` (автосоздание DIRECT при accept).
- * Events are published to the global EventBusService — no direct Gateway dependency.
+ * События публикуются в глобальный EventBusService — прямой зависимости от Gateway нет.
  */
 @Module({
   imports: [

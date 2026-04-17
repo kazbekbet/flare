@@ -132,7 +132,7 @@ describe('FriendsService', () => {
       const doc = makeFriendshipDoc();
       friendshipModel.findById.mockResolvedValue(doc);
 
-      // REQ_ID is the requester, not the addressee
+      // REQ_ID — инициатор, а не адресат
       await expect(service.accept(REQ_ID, FRIENDSHIP_ID)).rejects.toBeInstanceOf(BadRequestException);
     });
   });

@@ -14,11 +14,11 @@ import { env } from '@shared/config';
 export const UNAUTHORIZED_EVENT = 'flare:unauthorized';
 
 /**
- * Discriminated union describing API error categories.
+ * Размеченное объединение категорий ошибок API.
  *
  * @prop kind - 'unauthorized' | 'validation' | 'server' | 'network'
- * @prop status - HTTP status code (undefined for network errors)
- * @prop message - Human-readable description
+ * @prop status - HTTP-статус ответа (undefined для сетевых ошибок)
+ * @prop message - Описание ошибки
  */
 export type ApiError =
   | { kind: 'unauthorized'; status: 401; message: string }
@@ -67,7 +67,7 @@ function categorizeError(error: FetchBaseQueryError, url: string): ApiError {
  * `BaseQueryFn`-обёртка:
  * - Эмитит `UNAUTHORIZED_EVENT` при 401 (logout).
  * - Эмитит `api:server-error` CustomEvent при 5xx для глобального toast-хендлера.
- * - Categorizes errors into the ApiError discriminated union (accessible via result.error).
+ * - Категоризирует ошибки в размеченное объединение ApiError (доступно через result.error).
  */
 const baseQueryWithAuth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> = async (
   args,

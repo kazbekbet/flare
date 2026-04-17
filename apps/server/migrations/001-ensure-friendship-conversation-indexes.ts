@@ -1,7 +1,7 @@
 import type { Connection } from 'mongoose';
 
-// Migration interface is duplicated here to avoid a cross-rootDir import.
-// Keep in sync with src/modules/migrations/migration.types.ts.
+// Интерфейс продублирован здесь, чтобы не тянуть cross-rootDir импорт.
+// Держать в синхронизации с src/modules/migrations/migration.types.ts.
 interface Migration {
   version: number;
   name: string;
@@ -10,10 +10,10 @@ interface Migration {
 }
 
 /**
- * Ensures the indexes introduced in commit b146ccc are present.
- * These indexes are already created by Mongoose schema definitions on app start,
- * so this migration is a safe no-op on a fresh or already-migrated database.
- * It serves as a reference example for authoring future migrations.
+ * Гарантирует наличие индексов, введённых в коммите b146ccc.
+ * Индексы уже создаются Mongoose-схемами при старте приложения,
+ * поэтому на чистой или уже мигрированной базе миграция является безопасным no-op.
+ * Служит эталонным примером для написания будущих миграций.
  */
 const migration: Migration = {
   version: 1,
@@ -29,8 +29,8 @@ const migration: Migration = {
   },
 
   async down(connection: Connection): Promise<void> {
-    // Indexes created by Mongoose schema definitions are intentional and load-bearing.
-    // Rolling back this migration does NOT drop them — doing so would degrade query performance.
+    // Индексы, созданные Mongoose-схемами, намеренны и нагрузочно значимы.
+    // Откат этой миграции НЕ удаляет их — это деградировало бы производительность запросов.
     void connection;
   },
 };

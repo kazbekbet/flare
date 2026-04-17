@@ -16,8 +16,8 @@ import config from '@flare/eslint-config';
  */
 
 /**
- * FSD layer boundary rules for apps/web/src.
- * Prevents upward imports: e.g. shared must not import from entities/features/etc.
+ * Правила границ FSD-слоёв для apps/web/src.
+ * Запрещает восходящие импорты: например, shared не должен импортировать из entities/features и т. д.
  */
 const FSD_LAYERS = ['app', 'pages', 'features', 'entities', 'shared'];
 const FSD_ALLOWED_FROM = {

@@ -21,7 +21,7 @@ describe('ChatGateway', () => {
   let gateway: ChatGateway;
 
   beforeEach(() => {
-    // Instantiate directly to avoid wiring up WsJwtGuard + JwtService in unit tests.
+    // Создаём напрямую, чтобы не поднимать WsJwtGuard + JwtService в юнит-тестах.
     gateway = new ChatGateway();
     gateway.server = {
       to: jest.fn().mockReturnValue({ emit: jest.fn() }),

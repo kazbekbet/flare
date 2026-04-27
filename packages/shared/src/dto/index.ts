@@ -54,11 +54,41 @@ export type SendMessageDto = z.infer<typeof SendMessageDtoSchema>;
 export const RegisterDtoSchema = z.object({
   displayName: z.string().min(2).max(64),
   publicKey: z.string().min(1),
+  signingPublicKey: z.string().optional(),
   fcmToken: z.string().optional(),
 });
 
 /** Тип DTO для регистрации, выведенный из Zod-схемы. */
 export type RegisterDto = z.infer<typeof RegisterDtoSchema>;
+
+/**
+ * Zod-схема для входа по challenge-подписи.
+ * Клиент подписывает timestamp приватным ключом — сервер проверяет Ed25519-подпись.
+ *
+ * @prop {string} displayName - Отображаемое имя пользователя.
+ * @prop {string} signature - Base64-encoded Ed25519-подпись timestamp.
+ * @prop {number} timestamp - Unix-timestamp в секундах, который был подписан.
+ */
+export const LoginDtoSchema = z.object({
+  displayName: z.string().min(1).max(32),
+  signature: z.string().min(1),
+  timestamp: z.number().int().positive(),
+});
+
+/** Тип DTO для входа, выведенный из Zod-схемы. */
+export type LoginDto = z.infer<typeof LoginDtoSchema>;
+
+/**
+ * Zod-схема для сохранения зашифрованного бэкапа ключей.
+ *
+ * @prop {string} encryptedBlob - Зашифрованный блоб с ключами в Base64.
+ */
+export const KeyBackupDtoSchema = z.object({
+  encryptedBlob: z.string().min(1),
+});
+
+/** Тип DTO для бэкапа ключей, выведенный из Zod-схемы. */
+export type KeyBackupDto = z.infer<typeof KeyBackupDtoSchema>;
 
 /**
  * Zod-схема для обновления профиля текущего пользователя.

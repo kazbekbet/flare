@@ -9,8 +9,10 @@ import type { HydratedDocument } from 'mongoose';
  *
  * @prop {string} displayName - Отображаемое имя пользователя (уникальное в рамках MVP).
  * @prop {string} publicKey - Base64-encoded X25519 публичный ключ.
+ * @prop {string} [signingPublicKey] - Base64-encoded Ed25519 публичный ключ подписи для challenge-авторизации.
  * @prop {string} [avatarUrl] - URL аватара в MinIO/S3.
  * @prop {string} [fcmToken] - FCM-токен устройства для push-уведомлений.
+ * @prop {string} [encryptedKeyBackup] - Зашифрованный бэкап ключей пользователя в Base64.
  */
 @Schema({ collection: 'users', timestamps: true })
 export class User {
@@ -21,10 +23,16 @@ export class User {
   publicKey!: string;
 
   @Prop()
+  signingPublicKey?: string;
+
+  @Prop()
   avatarUrl?: string;
 
   @Prop()
   fcmToken?: string;
+
+  @Prop()
+  encryptedKeyBackup?: string;
 }
 
 /** Mongoose-документ коллекции `users`. */

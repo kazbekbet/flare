@@ -5,7 +5,7 @@ import { Throttle } from '@nestjs/throttler';
 import { type Request, type Response } from 'express';
 
 import { AuthService, type AuthTokens } from './auth.service.js';
-import { RegisterDto } from './dto/auth.dto.js';
+import { LoginDto, RegisterDto } from './dto/auth.dto.js';
 
 /** Имя httpOnly-cookie, в которой клиенту возвращается refresh-токен. */
 const REFRESH_COOKIE = 'flare_refresh';
@@ -33,6 +33,30 @@ export class AuthController {
   ): Promise<{ userId: string; accessToken: string; accessTokenExpiresIn: number }> {
     const result = await this.authService.register(dto);
     this.setRefreshCookie(res, result.tokens);
+    return {
+      userId: result.userId,
+      accessToken: result.tokens.accessToken,
+      accessTokenExpiresIn: result.tokens.accessTokenExpiresIn,
+    };
+  }
+
+  /**
+   * Вход по challenge-подписи. Проверяет Ed25519-подпись timestamp.
+   * Возвращает userId и access-токен; refresh-токен ставится в httpOnly cookie.
+   */
+  @Post('login')
+  @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { ttl: 60_000, limit: 10 } })
+  @ApiOperation({ summary: 'Вход по challenge-подписи' })
+  @ApiBody({ type: LoginDto })
+  async login(
+    @Body() dto: LoginDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<{ userId: string; accessToken: string; accessTokenExpiresIn: number }> {
+    const result = await this.authService.login(dto);
+
+    this.setRefreshCookie(res, result.tokens);
+
     return {
       userId: result.userId,
       accessToken: result.tokens.accessToken,

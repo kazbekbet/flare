@@ -85,6 +85,29 @@ export class UsersService {
     return { userId, publicKey: user.publicKey };
   }
 
+  /**
+   * Сохраняет зашифрованный бэкап ключей пользователя.
+   *
+   * @param userId - ID пользователя.
+   * @param encryptedBlob - Зашифрованный блоб в Base64.
+   */
+  async saveKeyBackup(userId: string, encryptedBlob: string): Promise<void> {
+    await this.findByIdOrThrow(userId);
+    await this.userModel.updateOne({ _id: userId }, { $set: { encryptedKeyBackup: encryptedBlob } });
+  }
+
+  /**
+   * Возвращает зашифрованный бэкап ключей или null, если бэкап не создан.
+   *
+   * @param userId - ID пользователя.
+   * @returns Зашифрованный блоб или null.
+   */
+  async getKeyBackup(userId: string): Promise<string | null> {
+    const user = await this.findByIdOrThrow(userId);
+
+    return user.encryptedKeyBackup ?? null;
+  }
+
   private async findByIdOrThrow(userId: string): Promise<UserDocument> {
     if (!isValidObjectId(userId)) throw new NotFoundException({ message: 'User not found', code: 'USER_NOT_FOUND' });
     const user = await this.userModel.findById(userId);

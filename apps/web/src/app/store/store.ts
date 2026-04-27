@@ -1,6 +1,6 @@
 import { sessionReducer } from '@entities/session';
 import { configureStore } from '@reduxjs/toolkit';
-import { baseApi } from '@shared/api';
+import { baseApi, socketListenerMiddleware } from '@shared/api';
 
 /**
  * Корневой RTK-store приложения.
@@ -12,7 +12,7 @@ export const store = configureStore({
     session: sessionReducer,
     [baseApi.reducerPath]: baseApi.reducer,
   },
-  middleware: (getDefault) => getDefault().concat(baseApi.middleware),
+  middleware: (getDefault) => getDefault().prepend(socketListenerMiddleware.middleware).concat(baseApi.middleware),
 });
 
 /** Корневой тип state для селекторов. */

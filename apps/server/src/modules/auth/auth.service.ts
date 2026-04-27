@@ -6,7 +6,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { randomUUID } from 'node:crypto';
 import { Model } from 'mongoose';
 
-import { type RegisterDto } from '@flare/shared';
+import { type LoginDto, type RegisterDto, verifyChallenge } from '@flare/shared';
 
 import { type JwtAccessPayload, type JwtRefreshPayload } from '../../common/types/authenticated.types.js';
 import { type AppEnv } from '../../config/env.types.js';
@@ -27,12 +27,12 @@ export interface AuthTokens {
 }
 
 /**
- * Результат регистрации нового пользователя.
+ * Результат регистрации или входа пользователя.
  *
- * @prop {string} userId - ID созданного пользователя.
+ * @prop {string} userId - ID пользователя.
  * @prop {AuthTokens} tokens - Выданная пара токенов.
  */
-export interface RegisterResult {
+export interface AuthResult {
   userId: string;
   tokens: AuthTokens;
 }
@@ -54,21 +54,55 @@ export class AuthService {
   /**
    * Регистрирует нового пользователя и выдаёт пару токенов.
    *
-   * @param dto - DTO регистрации (displayName + publicKey).
+   * @param dto - DTO регистрации (displayName + publicKey + опциональный signingPublicKey).
    * @returns ID нового пользователя и токены.
    * @throws ConflictException если displayName уже занят.
    */
-  async register(dto: RegisterDto): Promise<RegisterResult> {
+  async register(dto: RegisterDto): Promise<AuthResult> {
     const exists = await this.userModel.exists({ displayName: dto.displayName });
+
     if (exists) {
       throw new ConflictException({ message: 'displayName already taken', code: 'USERNAME_TAKEN' });
     }
+
     const user = await this.userModel.create({
       displayName: dto.displayName,
       publicKey: dto.publicKey,
+      signingPublicKey: dto.signingPublicKey,
       fcmToken: dto.fcmToken,
     });
+
     const tokens = await this.issueTokens(user.id);
+
+    return { userId: user.id, tokens };
+  }
+
+  /**
+   * Вход по challenge-подписи. Проверяет Ed25519-подпись timestamp публичным ключом пользователя.
+   *
+   * @param dto - DTO входа (displayName + signature + timestamp).
+   * @returns ID пользователя и токены.
+   * @throws UnauthorizedException если пользователь не найден, нет signingPublicKey или подпись невалидна.
+   */
+  async login(dto: LoginDto): Promise<AuthResult> {
+    const user = await this.userModel.findOne({ displayName: dto.displayName });
+
+    if (!user) {
+      throw new UnauthorizedException({ message: 'Invalid credentials', code: 'INVALID_CREDENTIALS' });
+    }
+
+    if (!user.signingPublicKey) {
+      throw new UnauthorizedException({ message: 'Signing key not registered', code: 'NO_SIGNING_KEY' });
+    }
+
+    const valid = verifyChallenge(user.signingPublicKey, dto.signature, dto.timestamp);
+
+    if (!valid) {
+      throw new UnauthorizedException({ message: 'Invalid credentials', code: 'INVALID_CREDENTIALS' });
+    }
+
+    const tokens = await this.issueTokens(user.id);
+
     return { userId: user.id, tokens };
   }
 

@@ -1,10 +1,21 @@
-import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  NotFoundException,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard.js';
 import { type AuthenticatedUser } from '../../common/types/authenticated.types.js';
-import { UpdateUserDto } from './dto/users.dto.js';
+import { KeyBackupDto, UpdateUserDto } from './dto/users.dto.js';
 import { type PrivateUserProfile, UsersService } from './users.service.js';
 
 /**
@@ -29,6 +40,35 @@ export class UsersController {
   @ApiOperation({ summary: 'Обновить собственный профиль (частичное обновление)' })
   updateMe(@CurrentUser() user: AuthenticatedUser, @Body() dto: UpdateUserDto): Promise<PrivateUserProfile> {
     return this.usersService.updateProfile(user.id, dto);
+  }
+
+  /**
+   * Сохраняет зашифрованный бэкап ключей текущего пользователя.
+   */
+  @Post('me/key-backup')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Сохранить зашифрованный бэкап ключей' })
+  async saveKeyBackup(@CurrentUser() user: AuthenticatedUser, @Body() dto: KeyBackupDto): Promise<void> {
+    await this.usersService.saveKeyBackup(user.id, dto.encryptedBlob);
+  }
+
+  /**
+   * Возвращает зашифрованный бэкап ключей текущего пользователя.
+   */
+  @Get('me/key-backup')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Получить зашифрованный бэкап ключей' })
+  async getKeyBackup(@CurrentUser() user: AuthenticatedUser): Promise<{ encryptedBlob: string }> {
+    const blob = await this.usersService.getKeyBackup(user.id);
+
+    if (!blob) {
+      throw new NotFoundException({ message: 'Key backup not found', code: 'KEY_BACKUP_NOT_FOUND' });
+    }
+
+    return { encryptedBlob: blob };
   }
 
   @Get(':id/public-key')

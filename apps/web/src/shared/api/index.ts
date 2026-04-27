@@ -1,4 +1,7 @@
 export { baseApi, UNAUTHORIZED_EVENT } from './base-api';
+export { emitOrQueue, enqueue, flush } from './offline-queue';
+export { connectSocket, disconnectSocket, getSocket } from './socket-client';
+export { socketListenerMiddleware } from './socket-middleware';
 
 /**
  * Утилита: вытаскивает `data` из ApiEnvelope.

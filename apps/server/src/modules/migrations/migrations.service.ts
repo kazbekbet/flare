@@ -47,11 +47,23 @@ export class MigrationsService {
       .sort();
 
     const migrations: Migration[] = [];
+
     for (const file of files) {
       const filePath = path.join(dir, file);
-      // Используем динамический import — работает как с компилированным JS, так и с ts-node.
-      const mod = (await import(pathToFileURL(filePath).href)) as { default: Migration };
-      migrations.push(mod.default);
+
+      try {
+        const mod = (await import(pathToFileURL(filePath).href)) as { default?: Migration };
+
+        if (!mod.default?.version || !mod.default?.up || !mod.default?.down) {
+          this.logger.warn(`Skipping ${file}: missing default export with {version, name, up, down}.`);
+          continue;
+        }
+
+        migrations.push(mod.default);
+      } catch (err) {
+        this.logger.error(`Failed to load migration file ${file}: ${err}`);
+        throw err;
+      }
     }
 
     return migrations.sort((a, b) => a.version - b.version);

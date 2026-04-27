@@ -42,13 +42,16 @@ import { helper } from '../utils/helper';
 import './styles.css';
 ```
 
-**Type-only импорты** — всегда inline:
+**Type-only импорты** — standalone для чисто типовых, inline для смешанных:
 
 ```ts
-// правильно
+// правильно: чисто типовой импорт — standalone
+import type { User } from '@flare/shared';
+
+// правильно: смешанный импорт (тип + значение) — inline
 import { type User, getUser } from '@flare/shared';
 
-// неправильно
+// неправильно: два отдельных импорта из одного модуля
 import type { User } from '@flare/shared';
 import { getUser } from '@flare/shared';
 ```

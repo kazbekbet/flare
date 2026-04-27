@@ -117,6 +117,7 @@ export class FriendsService {
           session,
         );
       });
+
       const view = this.toView(friendship);
       this.eventBus.emit({
         type: 'FriendRequestAccepted',
@@ -124,6 +125,7 @@ export class FriendsService {
         friendship: view,
         conversationId,
       });
+
       return { friendship: view, conversationId };
     } finally {
       await session.endSession();

@@ -111,7 +111,6 @@ export class AuthService {
     const jti = randomUUID();
     const accessTtl = this.config.get('JWT_ACCESS_TTL', { infer: true }) ?? '15m';
     const refreshTtl = this.config.get('JWT_REFRESH_TTL', { infer: true }) ?? '7d';
-
     const accessPayload: JwtAccessPayload = { sub: userId };
     const refreshPayload: JwtRefreshPayload = { sub: userId, jti };
 

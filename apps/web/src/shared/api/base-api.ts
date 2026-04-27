@@ -75,6 +75,7 @@ const baseQueryWithAuth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQuery
   extraOptions,
 ) => {
   const result = await rawBaseQuery(args, api, extraOptions);
+
   if (result.error) {
     const url = typeof args === 'string' ? args : (args.url ?? '');
     const categorized = categorizeError(result.error, url);
@@ -82,6 +83,7 @@ const baseQueryWithAuth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQuery
       window.dispatchEvent(new CustomEvent(UNAUTHORIZED_EVENT));
     }
   }
+
   return result;
 };
 

@@ -25,6 +25,7 @@ export interface IdentityKeypair {
  */
 export function generateIdentityKeypair(): IdentityKeypair {
   const kp = nacl.box.keyPair();
+
   return {
     publicKey: encodeBase64(kp.publicKey),
     privateKey: encodeBase64(kp.secretKey),
@@ -41,12 +42,15 @@ export function generateIdentityKeypair(): IdentityKeypair {
  */
 export async function publicKeyFingerprint(publicKeyBase64: string): Promise<string> {
   const bytes = decodeBase64(publicKeyBase64);
+
   // Копируем байты в свежий ArrayBuffer — Uint8Array из tweetnacl-util
   // декларирован как Uint8Array<ArrayBufferLike>, что несовместимо с BufferSource в TS 5.x.
   const buffer = new ArrayBuffer(bytes.length);
   new Uint8Array(buffer).set(bytes);
+
   const digest = await crypto.subtle.digest('SHA-256', buffer);
   const view = new Uint8Array(digest).slice(0, 8);
+
   return Array.from(view)
     .map((b) => b.toString(16).padStart(2, '0'))
     .join(':');

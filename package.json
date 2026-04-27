@@ -24,7 +24,7 @@
     "eslint": "^9.0.0",
     "eslint-plugin-boundaries": "^6.0.2",
     "lefthook": "^2.1.5",
-    "prettier": "latest",
+    "prettier": "^3.8.2",
     "turbo": "latest",
     "wait-on": "^9.0.5"
   }

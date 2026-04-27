@@ -32,12 +32,14 @@ export interface RegisterArgs {
  */
 export async function performRegister(args: RegisterArgs, dispatch: AppDispatch): Promise<string> {
   const keypair = generateIdentityKeypair();
+
   const result = await dispatch(
     authApi.endpoints.register.initiate({
       displayName: args.displayName,
       publicKey: keypair.publicKey,
     }),
   ).unwrap();
+
   await storePrivateKey(keypair.privateKey, args.pin);
   dispatch(
     authenticated({
@@ -48,5 +50,6 @@ export async function performRegister(args: RegisterArgs, dispatch: AppDispatch)
       accessToken: result.accessToken,
     }),
   );
+
   return result.userId;
 }

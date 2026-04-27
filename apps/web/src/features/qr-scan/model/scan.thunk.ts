@@ -30,9 +30,11 @@ export interface ScanResult {
  */
 export async function processScannedQr(rawQrText: string, dispatch: AppDispatch): Promise<ScanResult> {
   const payload = decodeQrPayload(rawQrText);
+
   const keyResponse = await dispatch(userApi.endpoints.getPublicKey.initiate(payload.uid)).unwrap();
   const friendship = await dispatch(
     friendshipApi.endpoints.sendFriendRequest.initiate({ addresseeId: payload.uid }),
   ).unwrap();
+
   return { friendship, addresseePublicKey: keyResponse.publicKey, addresseeName: payload.name };
 }

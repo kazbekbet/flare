@@ -2,12 +2,12 @@ pre-commit:
   # prettier и eslint запускаются последовательно — eslint стартует после prettier
   jobs:
     - name: prettier
-      glob: "*.{ts,tsx,js,json}"
+      glob: '*.{ts,tsx,js,json,md}'
       run: node_modules/.bin/prettier --write {staged_files}
       stage_fixed: true
 
     - name: eslint
-      glob: "*.{ts,tsx}"
+      glob: '*.{ts,tsx,js}'
       run: node_modules/.bin/eslint --fix {staged_files}
       stage_fixed: true
 

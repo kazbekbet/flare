@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 
-import { Connection, Model, Types } from 'mongoose';
+import { type Connection, Model, Types } from 'mongoose';
 
 import type { SendMessageDto } from '@flare/shared';
 

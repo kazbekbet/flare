@@ -46,6 +46,34 @@ export class ConversationsService {
   }
 
   /**
+   * Возвращает все переписки пользователя, отсортированные по дате последнего сообщения (новые первые).
+   *
+   * @param userId - ID текущего пользователя.
+   * @returns Массив документов переписок.
+   */
+  async listForUser(userId: string): Promise<ConversationDocument[]> {
+    const objectId = new Types.ObjectId(userId);
+
+    return this.conversationModel.find({ memberIds: objectId }).sort({ 'lastMessage.createdAt': -1 }).lean();
+  }
+
+  /**
+   * Проверяет, является ли пользователь участником переписки.
+   *
+   * @param conversationId - ID переписки.
+   * @param userId - ID пользователя.
+   * @returns `true`, если пользователь — участник.
+   */
+  async isMember(conversationId: string, userId: string): Promise<boolean> {
+    const count = await this.conversationModel.countDocuments({
+      _id: new Types.ObjectId(conversationId),
+      memberIds: new Types.ObjectId(userId),
+    });
+
+    return count > 0;
+  }
+
+  /**
    * Создаёт Mongoose-транзакцию. Обёртка над `connection.startSession()` для удобного использования из модулей.
    *
    * @returns Готовая к использованию `ClientSession`.

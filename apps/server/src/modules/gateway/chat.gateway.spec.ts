@@ -1,11 +1,14 @@
 import { Test } from '@nestjs/testing';
 
+import { Types } from 'mongoose';
 import { Subject } from 'rxjs';
 
 import type { AppEvent } from '../events/app-events.js';
 import { EventBusService } from '../events/event-bus.service.js';
 import { ChatGateway, ServerEvents } from './chat.gateway.js';
 import { GatewayEventsBridge } from './gateway-events.bridge.js';
+
+const FAKE_USER_ID = new Types.ObjectId().toHexString();
 
 function makeSocket(userId?: string) {
   return {
@@ -22,9 +25,28 @@ describe('ChatGateway', () => {
 
   beforeEach(() => {
     // Создаём напрямую, чтобы не поднимать WsJwtGuard + JwtService в юнит-тестах.
-    gateway = new ChatGateway();
+    const presenceModel = { updateOne: jest.fn().mockResolvedValue({}), deleteOne: jest.fn().mockResolvedValue({}) };
+    const conversationModel = {
+      find: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue([]) }),
+      findOne: jest.fn().mockReturnValue({ lean: jest.fn().mockResolvedValue(null) }),
+    };
+    const messagesService = {
+      create: jest.fn(),
+      markDelivered: jest.fn(),
+      markRead: jest.fn(),
+      getSenderIds: jest.fn().mockResolvedValue([]),
+    };
+    const eventBus = { emit: jest.fn() };
+
+    gateway = new ChatGateway(
+      presenceModel as never,
+      conversationModel as never,
+      messagesService as never,
+      eventBus as never,
+    );
     gateway.server = {
       to: jest.fn().mockReturnValue({ emit: jest.fn() }),
+      in: jest.fn().mockReturnValue({ fetchSockets: jest.fn().mockResolvedValue([]) }),
     } as never;
   });
 
@@ -36,9 +58,9 @@ describe('ChatGateway', () => {
     });
 
     it('joins the user room when userId is present', async () => {
-      const socket = makeSocket('user-abc');
+      const socket = makeSocket(FAKE_USER_ID);
       await gateway.handleConnection(socket as never);
-      expect(socket.join).toHaveBeenCalledWith('user:user-abc');
+      expect(socket.join).toHaveBeenCalledWith(`user:${FAKE_USER_ID}`);
     });
   });
 
@@ -47,9 +69,9 @@ describe('ChatGateway', () => {
       const emitMock = jest.fn();
       (gateway.server.to as jest.Mock).mockReturnValue({ emit: emitMock });
 
-      gateway.emitToUser('user-42', 'test:event', { foo: 'bar' });
+      gateway.emitToUser(FAKE_USER_ID, 'test:event', { foo: 'bar' });
 
-      expect(gateway.server.to).toHaveBeenCalledWith('user:user-42');
+      expect(gateway.server.to).toHaveBeenCalledWith(`user:${FAKE_USER_ID}`);
       expect(emitMock).toHaveBeenCalledWith('test:event', { foo: 'bar' });
     });
   });

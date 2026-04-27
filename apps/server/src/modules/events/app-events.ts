@@ -15,5 +15,13 @@ export interface FriendRequestAcceptedEvent {
   conversationId: string;
 }
 
+/** Отправляется после создания нового сообщения в переписке. */
+export interface MessageSentEvent {
+  type: 'MessageSent';
+  conversationId: string;
+  messageId: string;
+  senderId: string;
+}
+
 /** Размеченное объединение всех событий приложения. */
-export type AppEvent = FriendRequestCreatedEvent | FriendRequestAcceptedEvent;
+export type AppEvent = FriendRequestCreatedEvent | FriendRequestAcceptedEvent | MessageSentEvent;

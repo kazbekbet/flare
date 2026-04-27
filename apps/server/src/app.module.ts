@@ -15,6 +15,7 @@ import { EventsModule } from './modules/events/events.module.js';
 import { FriendsModule } from './modules/friends/friends.module.js';
 import { GatewayModule } from './modules/gateway/gateway.module.js';
 import { HealthModule } from './modules/health/health.module.js';
+import { MessagesModule } from './modules/messages/messages.module.js';
 import { MigrationsModule } from './modules/migrations/migrations.module.js';
 import { UsersModule } from './modules/users/users.module.js';
 
@@ -71,6 +72,7 @@ import { UsersModule } from './modules/users/users.module.js';
     UsersModule,
     FriendsModule,
     ConversationsModule,
+    MessagesModule,
     GatewayModule,
     HealthModule,
   ],

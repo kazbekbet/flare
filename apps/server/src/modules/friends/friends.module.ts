@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { ConversationsModule } from '../conversations/conversations.module.js';
-import { GatewayModule } from '../gateway/gateway.module.js';
 import { Friendship, FriendshipSchema } from '../mongoose/schemas/friendship.schema.js';
 import { User, UserSchema } from '../mongoose/schemas/user.schema.js';
 import { FriendsController } from './friends.controller.js';
@@ -10,8 +9,8 @@ import { FriendsService } from './friends.service.js';
 
 /**
  * Модуль управления связями дружбы.
- * Зависит от `ConversationsModule` (автосоздание DIRECT при accept)
- * и `GatewayModule` (emit `friend:request` / `friend:accepted`).
+ * Зависит от `ConversationsModule` (автосоздание DIRECT при accept).
+ * События публикуются в глобальный EventBusService — прямой зависимости от Gateway нет.
  */
 @Module({
   imports: [
@@ -20,7 +19,6 @@ import { FriendsService } from './friends.service.js';
       { name: User.name, schema: UserSchema },
     ]),
     ConversationsModule,
-    GatewayModule,
   ],
   controllers: [FriendsController],
   providers: [FriendsService],

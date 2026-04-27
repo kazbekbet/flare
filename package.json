@@ -22,6 +22,7 @@
     "@flare/prettier-config": "workspace:*",
     "concurrently": "^9.2.1",
     "eslint": "^9.0.0",
+    "eslint-plugin-boundaries": "^6.0.2",
     "lefthook": "^2.1.5",
     "prettier": "latest",
     "turbo": "latest",

@@ -6,9 +6,10 @@ import { isValidObjectId, Model, Types } from 'mongoose';
 import { type CreateFriendRequestDto, FriendshipStatus } from '@flare/shared';
 
 import { ConversationsService } from '../conversations/conversations.service.js';
-import { ChatGateway, ServerEvents } from '../gateway/chat.gateway.js';
+import { EventBusService } from '../events/event-bus.service.js';
 import { Friendship, type FriendshipDocument } from '../mongoose/schemas/friendship.schema.js';
 import { User, type UserDocument } from '../mongoose/schemas/user.schema.js';
+import { type WithTimestamps } from '../mongoose/types.js';
 
 /**
  * Представление friendship-записи, возвращаемое клиенту.
@@ -47,7 +48,7 @@ export class FriendsService {
     @InjectModel(Friendship.name) private readonly friendshipModel: Model<FriendshipDocument>,
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
     private readonly conversationsService: ConversationsService,
-    private readonly gateway: ChatGateway,
+    private readonly eventBus: EventBusService,
   ) {}
 
   /**
@@ -87,7 +88,7 @@ export class FriendsService {
       status: FriendshipStatus.PENDING,
     });
     const view = this.toView(friendship);
-    this.gateway.emitToUser(dto.addresseeId, ServerEvents.FRIEND_REQUEST, view);
+    this.eventBus.emit({ type: 'FriendRequestCreated', addresseeId: dto.addresseeId, friendship: view });
     return view;
   }
 
@@ -117,7 +118,9 @@ export class FriendsService {
         );
       });
       const view = this.toView(friendship);
-      this.gateway.emitToUser(String(friendship.requesterId), ServerEvents.FRIEND_ACCEPTED, {
+      this.eventBus.emit({
+        type: 'FriendRequestAccepted',
+        requesterId: String(friendship.requesterId),
         friendship: view,
         conversationId,
       });
@@ -179,7 +182,7 @@ export class FriendsService {
   }
 
   private toView(doc: FriendshipDocument): FriendshipView {
-    const d = doc as FriendshipDocument & { createdAt: Date; updatedAt: Date };
+    const d = doc as WithTimestamps<FriendshipDocument>;
     return {
       id: doc.id,
       requesterId: String(doc.requesterId),

@@ -64,7 +64,7 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
    * @param event - Имя события.
    * @param payload - Данные события.
    */
-  emitToUser(userId: string, event: string, payload: unknown): void {
+  emitToUser<T>(userId: string, event: string, payload: T): void {
     this.server.to(this.userRoom(userId)).emit(event, payload);
   }
 

@@ -2,7 +2,7 @@ import type { AppDispatch } from '@app/store';
 import { authenticated } from '@entities/session';
 import { storePrivateKey } from '@shared/storage';
 
-import { generateIdentityKeypair } from '@flare/shared';
+import { deriveSigningPublicKey, generateIdentityKeypair } from '@flare/shared';
 
 import { authApi } from '../api/register.api';
 
@@ -32,11 +32,13 @@ export interface RegisterArgs {
  */
 export async function performRegister(args: RegisterArgs, dispatch: AppDispatch): Promise<string> {
   const keypair = generateIdentityKeypair();
+  const signingPublicKey = deriveSigningPublicKey(keypair.privateKey);
 
   const result = await dispatch(
     authApi.endpoints.register.initiate({
       displayName: args.displayName,
       publicKey: keypair.publicKey,
+      signingPublicKey,
     }),
   ).unwrap();
 

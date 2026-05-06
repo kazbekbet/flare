@@ -1,3 +1,4 @@
+import { messageReceived, messagesDelivered, messagesRead, type MessageView } from '@entities/message';
 import { accessTokenRefreshed, authenticated, loggedOut } from '@entities/session';
 import { createListenerMiddleware } from '@reduxjs/toolkit';
 
@@ -21,8 +22,16 @@ let heartbeatInterval: ReturnType<typeof setInterval> | null = null;
  */
 export const socketListenerMiddleware = createListenerMiddleware();
 
-/** Привязывает обработчики серверных событий к сокету. */
-function bindSocketEvents(dispatch: (action: unknown) => void): void {
+/**
+ * Привязывает обработчики серверных событий к сокету.
+ *
+ * @param dispatch - Функция диспатча Redux.
+ * @param getState - Функция получения текущего state Redux.
+ */
+function bindSocketEvents(
+  dispatch: (action: unknown) => void,
+  getState: () => { session: { userId: string | null } },
+): void {
   const socket = getSocket();
 
   socket.on('connect', () => {
@@ -47,6 +56,25 @@ function bindSocketEvents(dispatch: (action: unknown) => void): void {
   socket.on('friend:accepted', () => {
     dispatch(baseApi.util.invalidateTags(['Friendship']));
   });
+
+  socket.on('message:new', (msg: MessageView) => {
+    dispatch(messageReceived({ conversationId: msg.conversationId, message: msg }));
+    dispatch(baseApi.util.invalidateTags(['Conversation']));
+
+    const currentUserId = getState().session.userId;
+
+    if (msg.senderId !== currentUserId) {
+      socket.emit('message:delivered', { messageIds: [msg._id] });
+    }
+  });
+
+  socket.on('message:delivered', (payload: { messageIds: string[]; deliveredAt: string }) => {
+    dispatch(messagesDelivered(payload));
+  });
+
+  socket.on('message:read', (payload: { conversationId: string; readAt: string }) => {
+    dispatch(messagesRead(payload));
+  });
 }
 
 /** Флаг: обработчики событий уже привязаны к сокету. */
@@ -62,7 +90,7 @@ socketListenerMiddleware.startListening({
     const token = action.payload.accessToken;
 
     if (!eventsBound) {
-      bindSocketEvents(listenerApi.dispatch);
+      bindSocketEvents(listenerApi.dispatch, listenerApi.getState as () => { session: { userId: string | null } });
       eventsBound = true;
     }
 
@@ -79,7 +107,7 @@ socketListenerMiddleware.startListening({
     const token = action.payload;
 
     if (!eventsBound) {
-      bindSocketEvents(listenerApi.dispatch);
+      bindSocketEvents(listenerApi.dispatch, listenerApi.getState as () => { session: { userId: string | null } });
       eventsBound = true;
     }
 

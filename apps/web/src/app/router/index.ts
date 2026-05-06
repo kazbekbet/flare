@@ -1,1 +1,1 @@
-export { AppRouterProvider, router } from './router';
+export { AppRouterProvider, router, useAuthStartupContext } from './router';

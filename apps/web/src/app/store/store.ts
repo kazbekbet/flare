@@ -1,3 +1,4 @@
+import { messagesReducer } from '@entities/message';
 import { sessionReducer } from '@entities/session';
 import { configureStore } from '@reduxjs/toolkit';
 import { baseApi, socketListenerMiddleware } from '@shared/api';
@@ -10,6 +11,7 @@ import { baseApi, socketListenerMiddleware } from '@shared/api';
 export const store = configureStore({
   reducer: {
     session: sessionReducer,
+    messages: messagesReducer,
     [baseApi.reducerPath]: baseApi.reducer,
   },
   middleware: (getDefault) => getDefault().prepend(socketListenerMiddleware.middleware).concat(baseApi.middleware),
